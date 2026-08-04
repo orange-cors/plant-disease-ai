@@ -1,0 +1,39 @@
+Class,precision,recall,f1-score,support
+Apple: Apple Scab,0.9623,0.9444,0.9533,108
+Apple: Black Rot,1.0,1.0,1.0,93
+Apple: Cedar Apple Rust,0.9273,0.9444,0.9358,54
+Apple: Healthy,1.0,0.9847,0.9923,261
+Blueberry: Healthy,0.9641,0.9959,0.9798,243
+Cherry: Powdery Mildew,1.0,0.9937,0.9968,158
+Cherry: Healthy,0.9925,0.9706,0.9814,136
+Corn: Cercospora Leaf Spot,0.962,0.8736,0.9157,87
+Corn: Common Rust,0.9846,0.9796,0.9821,196
+Corn: Northern Leaf Blight,0.9198,0.9718,0.9451,177
+Corn: Healthy,1.0,1.0,1.0,175
+Grape: Black Rot,0.9892,0.9786,0.9839,187
+Grape: Esca (Black Measles),1.0,0.9952,0.9976,208
+Grape: Leaf Blight,1.0,1.0,1.0,161
+Grape: Healthy,0.96,0.9863,0.973,73
+Orange: Citrus Greening,1.0,1.0,1.0,826
+Peach: Bacterial Spot,0.9942,1.0,0.9971,345
+Peach: Healthy,0.9571,0.9571,0.9571,70
+Pepper: Bacterial Spot,0.963,0.975,0.9689,160
+Pepper: Healthy,0.966,0.9827,0.9742,231
+Potato: Early Blight,0.9634,0.9461,0.9547,167
+Potato: Late Blight,0.9458,0.9515,0.9486,165
+Potato: Healthy,1.0,1.0,1.0,23
+Raspberry: Healthy,0.9714,0.9315,0.951,73
+Soybean: Healthy,0.9948,0.9948,0.9948,774
+Squash: Powdery Mildew,1.0,0.9966,0.9983,295
+Strawberry: Leaf Scorch,1.0,1.0,1.0,166
+Strawberry: Healthy,0.9639,0.9756,0.9697,82
+Tomato: Bacterial Spot,0.9878,0.9613,0.9744,336
+Tomato: Early Blight,0.9123,0.9571,0.9341,163
+Tomato: Late Blight,0.9571,0.9571,0.9571,303
+Tomato: Leaf Mold,0.9733,0.9359,0.9542,156
+Tomato: Septoria Leaf Spot,0.965,0.955,0.96,289
+Tomato: Spider Mites,0.9843,0.9921,0.9881,252
+Tomato: Target Spot,0.9812,0.9905,0.9858,211
+Tomato: Yellow Leaf Curl Virus,0.9951,0.9951,0.9951,815
+Tomato: Mosaic Virus,0.9104,0.9531,0.9313,64
+Tomato: Healthy,0.9759,0.9798,0.9779,248

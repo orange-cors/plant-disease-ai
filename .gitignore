@@ -1,0 +1,10 @@
+venv/
+data/
+archive/
+
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+
+*smoke_test*
+*.zip

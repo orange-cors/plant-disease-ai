@@ -1,0 +1,39 @@
+Class,Class Weight
+Orange: Citrus Greening,0.27175462
+Tomato: Yellow Leaf Curl Virus,0.27550673
+Soybean: Healthy,0.2903109
+Peach: Bacterial Spot,0.6515249
+Tomato: Bacterial Spot,0.66899985
+Tomato: Late Blight,0.7408676
+Squash: Powdery Mildew,0.76238036
+Tomato: Septoria Leaf Spot,0.7786434
+Apple: Healthy,0.86256635
+Tomato: Spider Mites,0.89186686
+Tomato: Healthy,0.9048081
+Blueberry: Healthy,0.9260846
+Pepper: Healthy,0.97241884
+Tomato: Target Spot,1.0659207
+Grape: Esca (Black Measles),1.082106
+Corn: Common Rust,1.1441534
+Grape: Black Rot,1.2030166
+Corn: Northern Leaf Blight,1.2725787
+Corn: Healthy,1.287911
+Potato: Early Blight,1.340997
+Strawberry: Leaf Scorch,1.3494613
+Potato: Late Blight,1.3543463
+Tomato: Early Blight,1.375508
+Grape: Leaf Blight,1.3908482
+Pepper: Bacterial Spot,1.4012665
+Cherry: Powdery Mildew,1.4225786
+Tomato: Leaf Mold,1.4348539
+Cherry: Healthy,1.6445633
+Apple: Apple Scab,2.0699205
+Apple: Black Rot,2.4099076
+Corn: Cercospora Leaf Spot,2.575822
+Strawberry: Healthy,2.7160666
+Grape: Healthy,3.0479686
+Raspberry: Healthy,3.054189
+Peach: Healthy,3.1773942
+Tomato: Mosaic Virus,3.504807
+Apple: Cedar Apple Rust,4.1227345
+Potato: Healthy,9.845741

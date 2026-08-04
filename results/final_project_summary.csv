@@ -1,0 +1,2 @@
+project_title,dataset,total_images,number_of_classes,train_images,validation_images,test_images,largest_class_count,smallest_class_count,imbalance_ratio,phase1_test_accuracy,phase1_macro_f1,phase1_weighted_f1,phase2_test_accuracy,phase2_macro_f1,phase2_weighted_f1
+AI-Powered Plant Disease Detection and Classification System,PlantVillage,56869,38,39808,8530,8531,5507,152,36.23,0.8878,0.8549,0.8904,0.9816,0.9739,0.9816

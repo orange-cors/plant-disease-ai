@@ -1,0 +1,43 @@
+,precision,recall,f1-score,support
+Apple___Apple_scab,0.9623,0.9444,0.9533,108.0
+Apple___Black_rot,1.0,1.0,1.0,93.0
+Apple___Cedar_apple_rust,0.9273,0.9444,0.9358,54.0
+Apple___healthy,1.0,0.9847,0.9923,261.0
+Blueberry___healthy,0.9641,0.9959,0.9798,243.0
+Cherry_(including_sour)___Powdery_mildew,1.0,0.9937,0.9968,158.0
+Cherry_(including_sour)___healthy,0.9925,0.9706,0.9814,136.0
+Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot,0.962,0.8736,0.9157,87.0
+Corn_(maize)___Common_rust_,0.9846,0.9796,0.9821,196.0
+Corn_(maize)___Northern_Leaf_Blight,0.9198,0.9718,0.9451,177.0
+Corn_(maize)___healthy,1.0,1.0,1.0,175.0
+Grape___Black_rot,0.9892,0.9786,0.9839,187.0
+Grape___Esca_(Black_Measles),1.0,0.9952,0.9976,208.0
+Grape___Leaf_blight_(Isariopsis_Leaf_Spot),1.0,1.0,1.0,161.0
+Grape___healthy,0.96,0.9863,0.973,73.0
+Orange___Haunglongbing_(Citrus_greening),1.0,1.0,1.0,826.0
+Peach___Bacterial_spot,0.9942,1.0,0.9971,345.0
+Peach___healthy,0.9571,0.9571,0.9571,70.0
+"Pepper,_bell___Bacterial_spot",0.963,0.975,0.9689,160.0
+"Pepper,_bell___healthy",0.966,0.9827,0.9742,231.0
+Potato___Early_blight,0.9634,0.9461,0.9547,167.0
+Potato___Late_blight,0.9458,0.9515,0.9486,165.0
+Potato___healthy,1.0,1.0,1.0,23.0
+Raspberry___healthy,0.9714,0.9315,0.951,73.0
+Soybean___healthy,0.9948,0.9948,0.9948,774.0
+Squash___Powdery_mildew,1.0,0.9966,0.9983,295.0
+Strawberry___Leaf_scorch,1.0,1.0,1.0,166.0
+Strawberry___healthy,0.9639,0.9756,0.9697,82.0
+Tomato___Bacterial_spot,0.9878,0.9613,0.9744,336.0
+Tomato___Early_blight,0.9123,0.9571,0.9341,163.0
+Tomato___Late_blight,0.9571,0.9571,0.9571,303.0
+Tomato___Leaf_Mold,0.9733,0.9359,0.9542,156.0
+Tomato___Septoria_leaf_spot,0.965,0.955,0.96,289.0
+Tomato___Spider_mites Two-spotted_spider_mite,0.9843,0.9921,0.9881,252.0
+Tomato___Target_Spot,0.9812,0.9905,0.9858,211.0
+Tomato___Tomato_Yellow_Leaf_Curl_Virus,0.9951,0.9951,0.9951,815.0
+Tomato___Tomato_mosaic_virus,0.9104,0.9531,0.9313,64.0
+Tomato___healthy,0.9759,0.9798,0.9779,248.0
+accuracy,0.9816,0.9816,0.9816,0.9816
+macro avg,0.9743,0.9739,0.9739,8531.0
+weighted avg,0.9818,0.9816,0.9816,8531.0
+overall_accuracy,0.9816,0.9816,0.9816,0.9816
