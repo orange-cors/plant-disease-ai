@@ -43,6 +43,7 @@ def visualize_gradcam(model, image_path, true_label=None):
         top5_catid = top5_catid.cpu().numpy()
         
         predicted_idx = top5_catid[0]
+        predicted_class = DISPLAY_NAMES[predicted_idx]
 
     print(f"AI Prediction: {DISPLAY_NAMES[predicted_idx]} ({top5_prob[0]:.2f}%)")
 
@@ -91,3 +92,4 @@ def visualize_gradcam(model, image_path, true_label=None):
 
     plt.tight_layout()
     plt.show()
+    return predicted_class
