@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PlantDoctor AI - Chẩn đoán bệnh cây trồng</title>
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #16a34a;
+            --primary-dark: #15803d;
+            --primary-light: #dcfce7;
+
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-200: #bbf7d0;
+
+            --text: #17201a;
+            --muted: #64748b;
+
+            --background: #f4faf6;
+            --white: #ffffff;
+
+            --danger: #dc2626;
+            --warning: #f59e0b;
+
+            --border: #e2e8f0;
+
+            --shadow:
+                0 10px 35px rgba(15, 23, 42, 0.07);
+        }
+
+
+        body {
+            font-family:
+                Inter,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #f0fdf4 0%,
+                    #f8fafc 45%,
+                    #ffffff 100%
+                );
+
+            color: var(--text);
+
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .header {
+            background: rgba(255, 255, 255, 0.94);
+
+            border-bottom:
+                1px solid rgba(22, 163, 74, 0.12);
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            backdrop-filter: blur(12px);
+        }
+
+
+        .header-inner {
+            max-width: 1200px;
+            margin: auto;
+
+            padding: 18px 24px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+
+            border-radius: 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #22c55e,
+                    #15803d
+                );
+
+            color: white;
+
+            font-size: 22px;
+
+            box-shadow:
+                0 6px 18px rgba(22, 163, 74, 0.25);
+        }
+
+
+        .logo-text h1 {
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+
+        .logo-text span {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            border-radius: 999px;
+
+            background: var(--green-50);
+
+            color: var(--primary-dark);
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #22c55e;
+
+            box-shadow:
+                0 0 0 4px rgba(34, 197, 94, 0.12);
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .container {
+            max-width: 1200px;
+
+            margin:
+                0 auto;
+
+            padding:
+                42px 24px 70px;
+        }
+
+
+        .hero {
+            text-align: center;
+
+            max-width: 760px;
+
+            margin:
+                0 auto 35px;
+        }
+
+
+        .hero-badge {
+            display: inline-flex;
+
+            padding:
+                7px 14px;
+
+            border-radius: 999px;
+
+            background: var(--green-100);
+
+            color: var(--primary-dark);
+
+            font-size: 13px;
+            font-weight: 700;
+
+            margin-bottom: 14px;
+        }
+
+
+        .hero h2 {
+            font-size: clamp(30px, 5vw, 46px);
+
+            line-height: 1.1;
+
+            margin-bottom: 14px;
+
+            letter-spacing: -1px;
+        }
+
+
+        .hero h2 span {
+            color: var(--primary);
+        }
+
+
+        .hero p {
+            color: var(--muted);
+
+            font-size: 16px;
+
+            line-height: 1.7;
+        }
+
+
+        /* =====================================================
+           UPLOAD CARD
+        ===================================================== */
+
+        .upload-card {
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 20px;
+
+            padding: 28px;
+
+            box-shadow: var(--shadow);
+
+            margin-bottom: 28px;
+        }
+
+
+        .upload-zone {
+            border:
+                2px dashed #b7dfc3;
+
+            border-radius: 16px;
+
+            padding: 38px 25px;
+
+            text-align: center;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #fafffb,
+                    #f0fdf4
+                );
+
+            transition: 0.25s;
+        }
+
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary);
+
+            background: #ecfdf3;
+        }
+
+
+        .upload-icon {
+            width: 62px;
+            height: 62px;
+
+            border-radius: 18px;
+
+            background: var(--green-100);
+
+            color: var(--primary);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin:
+                0 auto 16px;
+
+            font-size: 28px;
+        }
+
+
+        .upload-zone h3 {
+            font-size: 18px;
+            margin-bottom: 7px;
+        }
+
+
+        .upload-zone p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+
+        #imageInput {
+            display: none;
+        }
+
+
+        .choose-button {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            padding:
+                12px 20px;
+
+            border-radius: 10px;
+
+            background: white;
+
+            color: var(--primary-dark);
+
+            border:
+                1px solid #bbf7d0;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+
+        .choose-button:hover {
+            background: var(--green-100);
+        }
+
+
+        .file-name {
+            margin-top: 14px;
+
+            font-size: 13px;
+
+            color: var(--muted);
+        }
+
+
+        .predict-button {
+            width: 100%;
+
+            margin-top: 20px;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #22c55e,
+                    #15803d
+                );
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 20px rgba(22, 163, 74, 0.2);
+
+            transition: 0.2s;
+        }
+
+
+        .predict-button:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 12px 25px rgba(22, 163, 74, 0.28);
+        }
+
+
+        .predict-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        .loading {
+            display: none;
+
+            text-align: center;
+
+            padding: 25px;
+
+            color: var(--primary-dark);
+        }
+
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+
+            border:
+                4px solid var(--green-200);
+
+            border-top-color:
+                var(--primary);
+
+            border-radius: 50%;
+
+            animation:
+                spin 0.8s linear infinite;
+
+            margin:
+                0 auto 12px;
+        }
+
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        .error-box {
+            display: none;
+
+            margin-top: 18px;
+
+            padding: 14px 16px;
+
+            border-radius: 10px;
+
+            background: #fef2f2;
+
+            border:
+                1px solid #fecaca;
+
+            color: var(--danger);
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           RESULT
+        ===================================================== */
+
+        #resultSection {
+            display: none;
+        }
+
+
+        .result-header {
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 18px;
+
+            padding: 25px;
+
+            box-shadow: var(--shadow);
+
+            margin-bottom: 22px;
+        }
+
+
+        .result-header-top {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: flex-start;
+
+            gap: 20px;
+        }
+
+
+        .result-label {
+            color: var(--primary);
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.7px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .disease-name {
+            font-size: 30px;
+
+            font-weight: 850;
+
+            margin-bottom: 7px;
+        }
+
+
+        .disease-meta {
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+        }
+
+
+        .tag {
+            padding:
+                6px 10px;
+
+            border-radius: 7px;
+
+            background: #f1f5f9;
+
+            color: #475569;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+
+        .confidence-card {
+            min-width: 190px;
+
+            padding: 16px;
+
+            border-radius: 13px;
+
+            background: var(--green-50);
+
+            border:
+                1px solid var(--green-200);
+
+            text-align: right;
+        }
+
+
+        .confidence-label {
+            font-size: 12px;
+
+            color: var(--muted);
+
+            margin-bottom: 4px;
+        }
+
+
+        .confidence-value {
+            font-size: 28px;
+
+            font-weight: 900;
+
+            color: var(--primary-dark);
+        }
+
+
+        /* =====================================================
+           VISUALIZATION
+        ===================================================== */
+
+        .section-title {
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font-size: 21px;
+
+            margin-bottom: 16px;
+        }
+
+
+        .section-title::before {
+            content: "";
+
+            width: 5px;
+
+            height: 25px;
+
+            border-radius: 5px;
+
+            background: var(--primary);
+        }
+
+
+        .visual-grid {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 20px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .visual-card {
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 16px;
+
+            overflow: hidden;
+
+            box-shadow: var(--shadow);
+        }
+
+
+        .visual-card-header {
+            padding: 15px 18px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+        }
+
+
+        .visual-card-header h3 {
+            font-size: 15px;
+        }
+
+
+        .visual-badge {
+            font-size: 11px;
+
+            padding:
+                5px 8px;
+
+            border-radius: 6px;
+
+            background: var(--green-100);
+
+            color: var(--primary-dark);
+
+            font-weight: 700;
+        }
+
+
+        .visual-image-wrapper {
+            padding: 12px;
+
+            background: #f8fafc;
+        }
+
+
+        .visual-image {
+            width: 100%;
+
+            height: 330px;
+
+            object-fit: contain;
+
+            display: block;
+
+            border-radius: 10px;
+
+            background: #e2e8f0;
+        }
+
+
+        /* =====================================================
+           TOP 5
+        ===================================================== */
+
+        .top-predictions {
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 16px;
+
+            padding: 22px;
+
+            box-shadow: var(--shadow);
+
+            margin-bottom: 25px;
+        }
+
+
+        .prediction-item {
+            margin-bottom: 17px;
+        }
+
+
+        .prediction-item:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .prediction-top {
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 7px;
+        }
+
+
+        .prediction-name {
+            font-size: 14px;
+
+            font-weight: 650;
+
+            color: #334155;
+        }
+
+
+        .prediction-percent {
+            font-size: 13px;
+
+            font-weight: 800;
+
+            color: var(--primary-dark);
+        }
+
+
+        .progress {
+            width: 100%;
+
+            height: 9px;
+
+            border-radius: 999px;
+
+            background: #e2e8f0;
+
+            overflow: hidden;
+        }
+
+
+        .progress-bar {
+            height: 100%;
+
+            width: 0%;
+
+            border-radius: 999px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #4ade80,
+                    #15803d
+                );
+
+            transition:
+                width 0.7s ease;
+        }
+
+
+        .prediction-item:first-child .progress-bar {
+            background:
+                linear-gradient(
+                    90deg,
+                    #22c55e,
+                    #15803d
+                );
+        }
+
+
+        /* =====================================================
+           INFORMATION
+        ===================================================== */
+
+        .info-card {
+            background: white;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 16px;
+
+            padding: 25px;
+
+            box-shadow: var(--shadow);
+
+            margin-bottom: 20px;
+        }
+
+
+        .description {
+            color: #475569;
+
+            line-height: 1.75;
+
+            font-size: 15px;
+        }
+
+
+        .info-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 20px;
+
+            margin-top: 20px;
+        }
+
+
+        .info-box {
+            padding: 20px;
+
+            border-radius: 13px;
+
+            border:
+                1px solid var(--border);
+
+            background: #ffffff;
+        }
+
+
+        .info-box h3 {
+            font-size: 16px;
+
+            margin-bottom: 14px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+        }
+
+
+        .info-box ul {
+            list-style: none;
+        }
+
+
+        .info-box li {
+            position: relative;
+
+            padding-left: 20px;
+
+            margin-bottom: 10px;
+
+            color: #475569;
+
+            font-size: 14px;
+
+            line-height: 1.55;
+        }
+
+
+        .info-box li::before {
+            content: "✓";
+
+            position: absolute;
+
+            left: 0;
+
+            top: 0;
+
+            color: var(--primary);
+
+            font-weight: 900;
+        }
+
+
+        .cause-box {
+            background:
+                linear-gradient(
+                    135deg,
+                    #f0fdf4,
+                    #ffffff
+                );
+
+            border-color:
+                var(--green-200);
+        }
+
+
+        .prevention-box {
+            background:
+                linear-gradient(
+                    135deg,
+                    #f0fdf4,
+                    #ffffff
+                );
+
+            border-color:
+                var(--green-200);
+        }
+
+
+        .treatment-box {
+            background:
+                linear-gradient(
+                    135deg,
+                    #fffbeb,
+                    #ffffff
+                );
+
+            border-color:
+                #fde68a;
+        }
+
+
+        .treatment-box li::before {
+            color: var(--warning);
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            text-align: center;
+
+            padding:
+                30px 20px;
+
+            color: #94a3b8;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 800px) {
+
+            .visual-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header-top {
+                flex-direction: column;
+            }
+
+            .confidence-card {
+                width: 100%;
+
+                text-align: left;
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .container {
+                padding:
+                    25px 14px 50px;
+            }
+
+            .upload-card {
+                padding: 18px;
+            }
+
+            .result-header {
+                padding: 18px;
+            }
+
+            .disease-name {
+                font-size: 24px;
+            }
+
+            .visual-image {
+                height: 260px;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="header">
+
+    <div class="header-inner">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                🌿
+            </div>
+
+            <div class="logo-text">
+
+                <h1>PlantDoctor AI</h1>
+
+                <span>
+                    AI Plant Disease Diagnosis
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="status">
+
+            <span class="status-dot"></span>
+
+            AI System Online
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="container">
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="hero-badge">
+            AI POWERED PLANT DIAGNOSIS
+        </div>
+
+        <h2>
+            Phát hiện bệnh cây trồng
+            <span>thông minh hơn</span>
+        </h2>
+
+        <p>
+            Tải ảnh lá cây lên và để hệ thống AI phân tích,
+            nhận dạng bệnh, đánh giá độ tin cậy và giải thích
+            vùng hình ảnh mà mô hình sử dụng để đưa ra dự đoán.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         UPLOAD
+    ====================================================== -->
+
+    <section class="upload-card">
+
+        <div
+            class="upload-zone"
+            id="uploadZone"
+        >
+
+            <div class="upload-icon">
+                📷
+            </div>
+
+            <h3>
+                Tải ảnh lá cây lên
+            </h3>
+
+            <p>
+                JPG, JPEG, PNG hoặc WEBP
+            </p>
+
+            <label
+                for="imageInput"
+                class="choose-button"
+            >
+                Chọn ảnh
+            </label>
+
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/jpeg,image/png,image/webp"
+            >
+
+            <div
+                id="fileName"
+                class="file-name"
+            >
+                Chưa chọn ảnh
+            </div>
+
+        </div>
+
+
+        <button
+            id="predictButton"
+            class="predict-button"
+        >
+            🔍 Phân tích ảnh bằng AI
+        </button>
+
+
+        <div
+            id="loading"
+            class="loading"
+        >
+
+            <div class="spinner"></div>
+
+            <strong>
+                AI đang phân tích ảnh...
+            </strong>
+
+            <p style="margin-top:6px;color:#64748b;font-size:13px;">
+                Đang thực hiện nhận dạng và tạo Grad-CAM
+            </p>
+
+        </div>
+
+
+        <div
+            id="errorBox"
+            class="error-box"
+        ></div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RESULT
+    ====================================================== -->
+
+    <section id="resultSection">
+
+
+        <!-- RESULT HEADER -->
+
+        <div class="result-header">
+
+            <div class="result-header-top">
+
+                <div>
+
+                    <div class="result-label">
+                        Kết quả chẩn đoán AI
+                    </div>
+
+                    <div
+                        id="diseaseName"
+                        class="disease-name"
+                    >
+                        -
+                    </div>
+
+                    <div
+                        id="diseaseMeta"
+                        class="disease-meta"
+                    ></div>
+
+                </div>
+
+
+                <div class="confidence-card">
+
+                    <div class="confidence-label">
+                        Độ tin cậy của mô hình
+                    </div>
+
+                    <div
+                        id="confidence"
+                        class="confidence-value"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             VISUALIZATION
+        ================================================== -->
+
+        <h2 class="section-title">
+            Phân tích hình ảnh
+        </h2>
+
+
+        <div class="visual-grid">
+
+
+            <!-- ORIGINAL -->
+
+            <div class="visual-card">
+
+                <div class="visual-card-header">
+
+                    <h3>
+                        Ảnh gốc
+                    </h3>
+
+                    <span class="visual-badge">
+                        INPUT
+                    </span>
+
+                </div>
+
+                <div class="visual-image-wrapper">
+
+                    <img
+                        id="originalImage"
+                        class="visual-image"
+                        alt="Ảnh lá cây"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- GRAD CAM -->
+
+            <div class="visual-card">
+
+                <div class="visual-card-header">
+
+                    <h3>
+                        Grad-CAM Heatmap
+                    </h3>
+
+                    <span class="visual-badge">
+                        EXPLAINABLE AI
+                    </span>
+
+                </div>
+
+                <div class="visual-image-wrapper">
+
+                    <img
+                        id="gradcamImage"
+                        class="visual-image"
+                        alt="Grad-CAM Heatmap"
+                    >
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             TOP 5
+        ================================================== -->
+
+        <div class="top-predictions">
+
+            <h2 class="section-title">
+                Top 5 dự đoán
+            </h2>
+
+            <div id="topPredictions"></div>
+
+        </div>
+
+
+        <!-- =================================================
+             DISEASE DESCRIPTION
+        ================================================== -->
+
+        <div class="info-card">
+
+            <h2 class="section-title">
+                Thông tin bệnh
+            </h2>
+
+            <p
+                id="description"
+                class="description"
+            >
+                Chưa có thông tin.
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             DETAILS
+        ================================================== -->
+
+        <div class="info-grid">
+
+
+            <!-- SYMPTOMS -->
+
+            <div class="info-box">
+
+                <h3>
+                    🔬 Triệu chứng
+                </h3>
+
+                <ul id="symptomsList"></ul>
+
+            </div>
+
+
+            <!-- CAUSE -->
+
+            <div class="info-box cause-box">
+
+                <h3>
+                    🦠 Nguyên nhân
+                </h3>
+
+                <ul id="causeList"></ul>
+
+            </div>
+
+
+            <!-- PREVENTION -->
+
+            <div class="info-box prevention-box">
+
+                <h3>
+                    🛡️ Phòng ngừa
+                </h3>
+
+                <ul id="preventionList"></ul>
+
+            </div>
+
+
+            <!-- TREATMENT -->
+
+            <div class="info-box treatment-box">
+
+                <h3>
+                    💊 Biện pháp xử lý
+                </h3>
+
+                <ul id="treatmentList"></ul>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<footer>
+
+    PlantDoctor AI · Hệ thống nhận dạng bệnh cây trồng
+    bằng Deep Learning & Explainable AI
+
+</footer>
+
+
+
+<script>
+
+
+// =========================================================
+// CONFIG
+// =========================================================
+
+const API_URL =
+    "http://127.0.0.1:8000/api/predict";
+
+
+// =========================================================
+// ELEMENTS
+// =========================================================
+
+const imageInput =
+    document.getElementById("imageInput");
+
+const uploadZone =
+    document.getElementById("uploadZone");
+
+const fileName =
+    document.getElementById("fileName");
+
+const predictButton =
+    document.getElementById("predictButton");
+
+const loading =
+    document.getElementById("loading");
+
+const errorBox =
+    document.getElementById("errorBox");
+
+const resultSection =
+    document.getElementById("resultSection");
+
+
+// =========================================================
+// IMAGE PREVIEW
+// =========================================================
+
+imageInput.addEventListener(
+    "change",
+    handleFile
+);
+
+
+function handleFile() {
+
+    const file =
+        imageInput.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+
+        showError(
+            "File được chọn không phải là ảnh."
+        );
+
+        return;
+    }
+
+
+    fileName.innerText =
+        file.name;
+
+
+    // Hiển thị ảnh gốc ngay lập tức
+
+    const imageURL =
+        URL.createObjectURL(file);
+
+    document
+        .getElementById("originalImage")
+        .src = imageURL;
+
+
+    resultSection.style.display =
+        "none";
+
+    errorBox.style.display =
+        "none";
+}
+
+
+// =========================================================
+// DRAG & DROP
+// =========================================================
+
+[
+    "dragenter",
+    "dragover"
+].forEach(eventName => {
+
+    uploadZone.addEventListener(
+        eventName,
+        event => {
+
+            event.preventDefault();
+
+            uploadZone.classList.add(
+                "dragover"
+            );
+
+        }
+    );
+
+});
+
+
+[
+    "dragleave",
+    "drop"
+].forEach(eventName => {
+
+    uploadZone.addEventListener(
+        eventName,
+        event => {
+
+            event.preventDefault();
+
+            uploadZone.classList.remove(
+                "dragover"
+            );
+
+        }
+    );
+
+});
+
+
+uploadZone.addEventListener(
+    "drop",
+    event => {
+
+        const files =
+            event.dataTransfer.files;
+
+        if (!files.length) {
+            return;
+        }
+
+        imageInput.files =
+            files;
+
+        handleFile();
+
+    }
+);
+
+
+// =========================================================
+// RENDER LIST
+// =========================================================
+
+function renderList(
+    elementId,
+    items
+) {
+
+    const list =
+        document.getElementById(
+            elementId
+        );
+
+    list.innerHTML = "";
+
+
+    if (
+        !Array.isArray(items) ||
+        items.length === 0
+    ) {
+
+        const li =
+            document.createElement("li");
+
+        li.innerText =
+            "Chưa có thông tin.";
+
+        list.appendChild(li);
+
+        return;
+    }
+
+
+    items.forEach(item => {
+
+        const li =
+            document.createElement("li");
+
+        li.innerText =
+            item;
+
+        list.appendChild(li);
+
+    });
+
+}
+
+
+// =========================================================
+// TOP 5 PREDICTIONS
+// =========================================================
+
+function renderTopPredictions(
+    predictions
+) {
+
+    const container =
+        document.getElementById(
+            "topPredictions"
+        );
+
+    container.innerHTML = "";
+
+
+    if (
+        !Array.isArray(predictions) ||
+        predictions.length === 0
+    ) {
+
+        container.innerHTML =
+            `<p style="color:#64748b">
+                Backend chưa trả về Top 5 predictions.
+            </p>`;
+
+        return;
+    }
+
+
+    predictions
+        .slice(0, 5)
+        .forEach((prediction, index) => {
+
+
+            // Hỗ trợ nhiều format JSON
+
+            const name =
+                prediction.class_name ||
+                prediction.label ||
+                prediction.name ||
+                prediction.class ||
+                "Unknown";
+
+
+            let probability =
+                Number(
+                    prediction.probability ??
+                    prediction.confidence ??
+                    prediction.score ??
+                    0
+                );
+
+
+            // Nếu backend trả 0 -> 1
+
+            if (probability <= 1) {
+
+                probability *= 100;
+
+            }
+
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.className =
+                "prediction-item";
+
+
+            item.innerHTML = `
+
+                <div class="prediction-top">
+
+                    <span class="prediction-name">
+                        ${index + 1}. ${escapeHTML(name)}
+                    </span>
+
+                    <span class="prediction-percent">
+                        ${probability.toFixed(2)}%
+                    </span>
+
+                </div>
+
+                <div class="progress">
+
+                    <div
+                        class="progress-bar"
+                        style="width:${Math.min(probability, 100)}%"
+                    ></div>
+
+                </div>
+            `;
+
+
+            container.appendChild(item);
+
+        });
+
+}
+
+
+// =========================================================
+// ESCAPE HTML
+// =========================================================
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.innerText =
+        text;
+
+    return div.innerHTML;
+
+}
+
+
+// =========================================================
+// MAIN AI REQUEST
+// =========================================================
+
+predictButton.addEventListener(
+    "click",
+    sendToAI
+);
+
+
+async function sendToAI() {
+
+
+    // -------------------------------------------------------
+    // Check file
+    // -------------------------------------------------------
+
+    if (
+        imageInput.files.length === 0
+    ) {
+
+        showError(
+            "Bạn chưa chọn ảnh lá cây."
+        );
+
+        return;
+    }
+
+
+    const file =
+        imageInput.files[0];
+
+
+    // -------------------------------------------------------
+    // UI loading
+    // -------------------------------------------------------
+
+    predictButton.disabled =
+        true;
+
+    loading.style.display =
+        "block";
+
+    errorBox.style.display =
+        "none";
+
+    resultSection.style.display =
+        "none";
+
+
+    // -------------------------------------------------------
+    // FormData
+    // -------------------------------------------------------
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "file",
+        file
+    );
+
+
+    try {
+
+
+        // ---------------------------------------------------
+        // Request
+        // ---------------------------------------------------
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "AI RESPONSE:",
+            data
+        );
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.message ||
+                "AI không thể phân tích ảnh."
+            );
+
+        }
+
+
+        // ===================================================
+        // INFO
+        // ===================================================
+
+        const info =
+            data.info || {};
+
+
+        // ===================================================
+        // DISEASE NAME
+        // ===================================================
+
+        document
+            .getElementById(
+                "diseaseName"
+            )
+            .innerText =
+                info.name ||
+                data.ai_prediction ||
+                "Không xác định";
+
+
+        // ===================================================
+        // META
+        // ===================================================
+
+        const meta =
+            document.getElementById(
+                "diseaseMeta"
+            );
+
+        meta.innerHTML = "";
+
+
+        if (info.english_name) {
+
+            meta.innerHTML += `
+                <span class="tag">
+                    ${escapeHTML(info.english_name)}
+                </span>
+            `;
+
+        }
+
+
+        if (info.crop) {
+
+            meta.innerHTML += `
+                <span class="tag">
+                    🌱 ${escapeHTML(info.crop)}
+                </span>
+            `;
+
+        }
+
+
+        if (data.database_key) {
+
+            meta.innerHTML += `
+                <span class="tag">
+                    ${escapeHTML(data.database_key)}
+                </span>
+            `;
+
+        }
+
+
+        // ===================================================
+        // CONFIDENCE
+        // ===================================================
+
+        let confidence =
+            Number(
+                data.confidence || 0
+            );
+
+
+        if (confidence <= 1) {
+
+            confidence *= 100;
+
+        }
+
+
+        document
+            .getElementById(
+                "confidence"
+            )
+            .innerText =
+                confidence.toFixed(2) + "%";
+
+
+        // ===================================================
+        // DESCRIPTION
+        // ===================================================
+
+        document
+            .getElementById(
+                "description"
+            )
+            .innerText =
+                info.description ||
+                "Chưa có thông tin.";
+
+
+        // ===================================================
+        // LISTS
+        // ===================================================
+
+        renderList(
+            "symptomsList",
+            info.symptoms
+        );
+
+
+        renderList(
+            "causeList",
+            info.cause
+        );
+
+
+        renderList(
+            "preventionList",
+            info.prevention
+        );
+
+
+        renderList(
+            "treatmentList",
+            info.treatment
+        );
+
+
+        // ===================================================
+        // ORIGINAL IMAGE
+        // ===================================================
+
+        document
+            .getElementById(
+                "originalImage"
+            )
+            .src =
+                URL.createObjectURL(file);
+
+
+        // ===================================================
+        // GRAD-CAM
+        // ===================================================
+
+        /*
+            Backend có thể trả:
+
+            gradcam_image:
+                "data:image/png;base64,..."
+
+            hoặc:
+
+            gradcam:
+                "data:image/png;base64,..."
+
+            hoặc URL:
+
+            gradcam_url:
+                "http://127.0.0.1:8000/..."
+        */
+
+        const gradcam =
+            data.gradcam_image ||
+            data.gradcam ||
+            data.gradcam_url;
+
+
+        if (gradcam) {
+
+            document
+                .getElementById(
+                    "gradcamImage"
+                )
+                .src =
+                    gradcam;
+
+        }
+        else {
+
+            document
+                .getElementById(
+                    "gradcamImage"
+                )
+                .removeAttribute(
+                    "src"
+                );
+
+            document
+                .getElementById(
+                    "gradcamImage"
+                )
+                .alt =
+                    "Backend chưa trả về Grad-CAM";
+
+        }
+
+
+        // ===================================================
+        // TOP 5
+        // ===================================================
+
+        renderTopPredictions(
+            data.top_predictions ||
+            data.top5 ||
+            data.top_5_predictions ||
+            []
+        );
+
+
+        // ===================================================
+        // SHOW RESULT
+        // ===================================================
+
+        resultSection.style.display =
+            "block";
+
+
+        // Scroll to result
+
+        setTimeout(() => {
+
+            resultSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }, 100);
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "AI ERROR:",
+            error
+        );
+
+        showError(
+            "Không thể kết nối hoặc xử lý dữ liệu từ AI Backend. " +
+            error.message
+        );
+
+    }
+    finally {
+
+        predictButton.disabled =
+            false;
+
+        loading.style.display =
+            "none";
+
+    }
+
+}
+
+
+// =========================================================
+// ERROR
+// =========================================================
+
+function showError(message) {
+
+    errorBox.innerText =
+        message;
+
+    errorBox.style.display =
+        "block";
+
+}
+
+</script>
+
+</body>
+</html>

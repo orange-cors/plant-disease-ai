@@ -1,95 +1,284 @@
-import sys
-import os
+import io
+
+import numpy as np
 import torch
 import torch.nn.functional as F
-import numpy as np
-import matplotlib.pyplot as plt
 import torchvision.transforms as T
+
 from PIL import Image
+
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
+
 from src.utils import DISPLAY_NAMES
 
-def visualize_gradcam(model, image_path, true_label=None):
-    print(f"Analyzing image: {image_path}")
 
-    transform = T.Compose([
-        T.Resize(256),              
-        T.CenterCrop(224),           
-        T.ToTensor(),               
-        T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
+# ============================================================
+# IMAGE TRANSFORM
+# ============================================================
 
-    try:
-        img_pil = Image.open(image_path).convert('RGB')
-    except FileNotFoundError:
-        print(f"ERROR: Cannot find image at {image_path}")
-        return
+TRANSFORM = T.Compose([
+    T.Resize(256),
+    T.CenterCrop(224),
+    T.ToTensor(),
+    T.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
 
-    image_tensor = transform(img_pil)
-    input_tensor = image_tensor.unsqueeze(0)
 
-    device = next(model.parameters()).device
-    input_tensor = input_tensor.to(device)
+# ============================================================
+# IMAGE -> TENSOR
+# ============================================================
+
+def prepare_image(image):
+    """
+    PIL Image -> tensor [1, 3, 224, 224]
+    """
+
+    image = image.convert("RGB")
+
+    tensor = TRANSFORM(image)
+
+    return tensor.unsqueeze(0)
+
+
+# ============================================================
+# ORIGINAL IMAGE FOR GRAD-CAM
+# ============================================================
+
+def get_display_image(image):
+    """
+    Tạo ảnh RGB 224x224 dạng numpy [0,1]
+    """
+
+    image = image.convert("RGB")
+
+    tensor = TRANSFORM(image)
+
+    mean = np.array(
+        [0.485, 0.456, 0.406]
+    )
+
+    std = np.array(
+        [0.229, 0.224, 0.225]
+    )
+
+    rgb = tensor.squeeze(0).permute(
+        1, 2, 0
+    ).numpy()
+
+    rgb = rgb * std + mean
+
+    rgb = np.clip(
+        rgb,
+        0,
+        1
+    )
+
+    return rgb
+
+
+# ============================================================
+# NUMPY -> PNG BYTES
+# ============================================================
+
+def numpy_to_png_bytes(image):
+    """
+    numpy RGB [0,1] -> PNG bytes
+    """
+
+    image = np.clip(
+        image * 255,
+        0,
+        255
+    ).astype(np.uint8)
+
+    pil_image = Image.fromarray(
+        image
+    )
+
+    buffer = io.BytesIO()
+
+    pil_image.save(
+        buffer,
+        format="PNG"
+    )
+
+    return buffer.getvalue()
+
+
+# ============================================================
+# MAIN PREDICTION
+# ============================================================
+
+def predict_with_gradcam(
+    model,
+    image,
+    device
+):
+    """
+    Chạy toàn bộ:
+
+    Image
+       ↓
+    ResNet18
+       ↓
+    Prediction
+       ↓
+    Top 5
+       ↓
+    Grad-CAM
+
+    Return dictionary.
+    """
+
+    # --------------------------------------------------------
+    # Prepare image
+    # --------------------------------------------------------
+
+    input_tensor = prepare_image(
+        image
+    ).to(device)
+
+    # --------------------------------------------------------
+    # Prediction
+    # --------------------------------------------------------
 
     model.eval()
+
     with torch.no_grad():
-        outputs = model(input_tensor)
-        
-        probabilities = F.softmax(outputs, dim=1)[0]
-        
-        top5_prob, top5_catid = torch.topk(probabilities, 5)
-        top5_prob = top5_prob.cpu().numpy() * 100
-        top5_catid = top5_catid.cpu().numpy()
-        
-        predicted_idx = top5_catid[0]
-        predicted_class = DISPLAY_NAMES[predicted_idx]
 
-    print(f"AI Prediction: {DISPLAY_NAMES[predicted_idx]} ({top5_prob[0]:.2f}%)")
+        outputs = model(
+            input_tensor
+        )
 
-    target_layers = [model.layer4[-1]]
-    cam = GradCAM(model=model, target_layers=target_layers)
-    grayscale_cam = cam(input_tensor=input_tensor, targets=None)[0, :]
+        probabilities = F.softmax(
+            outputs,
+            dim=1
+        )[0]
 
-    mean = np.array([0.485, 0.456, 0.406])
-    std = np.array([0.229, 0.224, 0.225])
-    rgb_img = image_tensor.cpu().permute(1, 2, 0).numpy()
-    rgb_img = np.clip(std * rgb_img + mean, 0, 1) 
+        top5_prob, top5_indices = torch.topk(
+            probabilities,
+            k=5
+        )
 
-    visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
+    top5_prob = (
+        top5_prob
+        .detach()
+        .cpu()
+        .numpy()
+    )
 
-    plt.figure(figsize=(16, 5))
-    
-    plt.subplot(1, 3, 1)
-    plt.imshow(rgb_img)
-    title_1 = f"Original Image"
-    if true_label:
-        title_1 += f"\nTrue Label: {true_label}"
-    plt.title(title_1, fontsize=11, fontweight='bold', color='darkgreen')
-    plt.axis('off')
+    top5_indices = (
+        top5_indices
+        .detach()
+        .cpu()
+        .numpy()
+    )
 
-    plt.subplot(1, 3, 2)
-    plt.imshow(visualization)
-    is_correct = (DISPLAY_NAMES[predicted_idx] == true_label) if true_label else False
-    color = 'blue' if is_correct else 'red'
-    plt.title(f"Grad-CAM Heatmap\nAI Predict: {DISPLAY_NAMES[predicted_idx]}", fontsize=11, fontweight='bold', color=color)
-    plt.axis('off')
-    
-    plt.subplot(1, 3, 3)
-    y_pos = np.arange(5)
-    top5_names = [DISPLAY_NAMES[i] for i in top5_catid]
-    
-    bars = plt.barh(y_pos, top5_prob, align='center', color='skyblue', edgecolor='black')
-    plt.yticks(y_pos, top5_names, fontsize=9)
-    plt.gca().invert_yaxis()
-    plt.xlabel('Probability (%)')
-    plt.title('Top 5 Predictions', fontsize=12, fontweight='bold')
-    plt.xlim(0, 100)
-    
-    for bar, prob in zip(bars, top5_prob):
-        plt.text(bar.get_width() + 2, bar.get_y() + bar.get_height()/2, 
-                 f'{prob:.2f}%', va='center', ha='left', fontsize=10, fontweight='bold')
+    # --------------------------------------------------------
+    # Prediction
+    # --------------------------------------------------------
 
-    plt.tight_layout()
-    plt.show()
-    return predicted_class
+    predicted_idx = int(
+        top5_indices[0]
+    )
+
+    predicted_class = DISPLAY_NAMES[
+        predicted_idx
+    ]
+
+    confidence = float(
+        top5_prob[0]
+    )
+
+    # --------------------------------------------------------
+    # Top 5
+    # --------------------------------------------------------
+
+    top5 = []
+
+    for idx, prob in zip(
+        top5_indices,
+        top5_prob
+    ):
+
+        idx = int(idx)
+
+        top5.append({
+            "index": idx,
+            "class_name": DISPLAY_NAMES[idx],
+            "probability": float(prob),
+            "percentage": float(prob * 100)
+        })
+
+    # --------------------------------------------------------
+    # Grad-CAM
+    # --------------------------------------------------------
+
+    # ResNet18 target layer
+    target_layers = [
+        model.layer4[-1]
+    ]
+
+    cam = GradCAM(
+        model=model,
+        target_layers=target_layers
+    )
+
+    grayscale_cam = cam(
+        input_tensor=input_tensor,
+        targets=None
+    )[0]
+
+    # --------------------------------------------------------
+    # Original image
+    # --------------------------------------------------------
+
+    rgb_img = get_display_image(
+        image
+    )
+
+    # --------------------------------------------------------
+    # Heatmap
+    # --------------------------------------------------------
+
+    visualization = show_cam_on_image(
+        rgb_img,
+        grayscale_cam,
+        use_rgb=True
+    )
+
+    # --------------------------------------------------------
+    # Convert to PNG
+    # --------------------------------------------------------
+
+    original_png = numpy_to_png_bytes(
+        rgb_img
+    )
+
+    heatmap_png = numpy_to_png_bytes(
+        visualization / 255.0
+    )
+
+    # --------------------------------------------------------
+    # Return
+    # --------------------------------------------------------
+
+    return {
+        "predicted_index": predicted_idx,
+
+        "predicted_class": predicted_class,
+
+        "confidence": confidence,
+
+        "confidence_percentage": confidence * 100,
+
+        "top5": top5,
+
+        "original_image": original_png,
+
+        "gradcam_image": heatmap_png
+    }
