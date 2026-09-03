@@ -18,9 +18,9 @@ I developed this as an Artificial Intelligence application project for my Softwa
 | Model | ResNet18 with ImageNet-pretrained weights + Grad-CAM |
 | Dataset | PlantVillage + PlantDoc (Hybrid) |
 | Images used | 54,305 |
-| Final test accuracy | [Update with your Phase 2 metrics]% |
-| Final macro F1-score | [Update with your Phase 2 metrics] |
-| Final weighted F1-score | [Update with your Phase 2 metrics] |
+| Final test accuracy | 98,16% |
+| Final macro F1-score | 97,39% |
+| Final weighted F1-score | 98,16% |
 
 ## Why I built this
 
@@ -34,8 +34,8 @@ The model was trained in two phases. In the first phase, the ResNet18 backbone w
 
 | Phase | Training setup | Test accuracy | Macro F1-score | Weighted F1-score |
 |---|---|---:|---:|---:|
-| Phase 1 | Frozen backbone | [Your Acc]% | [Your Score] | [Your Score] |
-| Phase 2 | Full fine-tuning | **[Your Acc]%** | **[Your Score]** | **[Your Score]** |
+| Phase 1 | Frozen backbone | 88,78% | 85,49% | 89,04% |
+| Phase 2 | Full fine-tuning | **98,16%** | **97,39** | **98,16** |
 
 The final model performs strongly on the combined hybrid test set. I included macro F1-score because accuracy alone can hide weaker performance on smaller classes.
 
@@ -43,15 +43,15 @@ The final model performs strongly on the combined hybrid test set. I included ma
 
 ### Training curves
 
-![Phase 2 training curves](results/training_curves_phase2.png)
+![Phase 2 training curves](docs/training_curves_phase2.png)
 
 ### Confusion matrix
 
-![Phase 2 confusion matrix](results/confusion_matrix_phase2.png)
+![Phase 2 confusion matrix](docs/confusion_matrix_phase2.png)
 
 ### Per-class F1-score
 
-![Phase 2 per-class F1-score](results/per_class_f1_phase2.png)
+![Phase 2 per-class F1-score](docs/per_class_f1_phase2.png)
 
 ## Dataset
 
@@ -66,10 +66,10 @@ The project uses a hybrid dataset combining controlled laboratory images (PlantV
 
 | Dataset property | Value |
 |---|---:|
-| Number of classes | [Update with your class count] |
-| Largest class count | [Update with your class count] |
-| Smallest class count | [Update with your class count] |
-| Imbalance ratio | [Update with your ratio] |
+| Number of classes | 38 |
+| Largest class count | 5507 |
+| Smallest class count | 152 |
+| Imbalance ratio | 36.23% |
 
 The dataset is not included in this repository because of size and licensing considerations. To run the project locally, run the provided `merge_data.py` script to structure the `data/` directory using an image-folder layout:
 
@@ -136,8 +136,10 @@ plant-disease-ai/
 ├── requirements.txt            
 └── .gitignore
 
+
 ## Source files
 
+```text
 | File | Purpose |
 |---|---|
 | `app.py` | FastAPI server entry point |
@@ -148,6 +150,7 @@ plant-disease-ai/
 
 ## What is not included
 
+```text
 The repository intentionally excludes large or local-only files:
 
 - the full dataset (`data/`)
@@ -158,6 +161,7 @@ This keeps the repository easier to review and clone.
 
 ## Next steps
 
+```text
 The most useful improvements would be:
 
 - Evaluate the hybrid model's robustness on a completely unseen third-party dataset
