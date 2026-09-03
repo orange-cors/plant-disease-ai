@@ -35,7 +35,7 @@ The model was trained in two phases. In the first phase, the ResNet18 backbone w
 | Phase | Training setup | Test accuracy | Macro F1-score | Weighted F1-score |
 |---|---|---:|---:|---:|
 | Phase 1 | Frozen backbone | 88,78% | 85,49% | 89,04% |
-| Phase 2 | Full fine-tuning | **98,16%** | **97,39** | **98,16** |
+| Phase 2 | Full fine-tuning | **98,16%** | **97,39%** | **98,16%** |
 
 The final model performs strongly on the combined hybrid test set. I included macro F1-score because accuracy alone can hide weaker performance on smaller classes.
 
@@ -103,7 +103,6 @@ The workflow follows these steps:
 | Loss function | Class-weighted cross-entropy |
 | Web API | FastAPI + Uvicorn |
 | Explainability | Gradient-weighted Class Activation Mapping (Grad-CAM) |
-
 ## Repository structure
 
 ```text
@@ -135,11 +134,10 @@ plant-disease-ai/
 ├── app.py                      
 ├── requirements.txt            
 └── .gitignore
-
+```
 
 ## Source files
 
-```text
 | File | Purpose |
 |---|---|
 | `app.py` | FastAPI server entry point |
@@ -150,7 +148,6 @@ plant-disease-ai/
 
 ## What is not included
 
-```text
 The repository intentionally excludes large or local-only files:
 
 - the full dataset (`data/`)
@@ -161,7 +158,6 @@ This keeps the repository easier to review and clone.
 
 ## Next steps
 
-```text
 The most useful improvements would be:
 
 - Evaluate the hybrid model's robustness on a completely unseen third-party dataset
