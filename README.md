@@ -1,44 +1,129 @@
-# 🌿 Hệ Thống Nhận Diện Bệnh Cây Trồng Bằng Trí Tuệ Nhân Tạo (AI Plant Disease Detection)
-> **"Chẩn đoán chính xác - Canh tác an tâm"**
+# PlantDoctor AI
 
-Dự án này là một ứng dụng Web tích hợp Trí tuệ Nhân tạo (AI) giúp nhận diện và chẩn đoán các loại bệnh phổ biến trên lá cây trồng (gia súc, gia cầm có thể mở rộng sau). Bằng cách người dùng tải ảnh lên, hệ thống sẽ phân tích, đưa ra dự đoán top 5 loại bệnh, mức độ tự tin và hiển thị bản đồ nhiệt (Grad-CAM) để giải thích vùng bị tổn thương trên lá.
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c)
+![Model](https://img.shields.io/badge/Model-ResNet18-lightgrey)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688)
 
----
+A practical computer vision and web deployment project for plant disease detection from leaf images, built with PyTorch, ResNet18 transfer learning, and FastAPI. The project covers the full machine learning workflow: hybrid dataset preparation, stratified splitting, model training, fine-tuning, Grad-CAM visualization, and web deployment.
 
-## Công nghệ sử dụng
-- **Trí tuệ nhân tạo (AI/Deep Learning):** PyTorch, ResNet18 (Transfer Learning), Grad-CAM (Trực quan hóa).
-- **Backend API:** FastAPI, Uvicorn, Python.
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript, Fetch API (Triển khai trên GitHub Pages).
-- **Công cụ hỗ trợ:** Ngrok (Public Tunneling), Draw.io (Sơ đồ kiến trúc).
+I developed this as an Artificial Intelligence application project for my Software Engineering major, with the goal of making the work easy to understand, reproduce, and use via a web interface. Alongside the main notebook, the repository includes modular Python scripts, an active FastAPI backend, and a Vanilla JS frontend interface.
 
----
+## At a glance
 
-## Dữ liệu huấn luyện (Dataset)
-Hệ thống sử dụng bộ dữ liệu lai (Hybrid Dataset) được gộp từ 2 nguồn:
-1. **PlantVillage:** Ảnh chụp lá cây trong điều kiện phòng thí nghiệm (nền trơn, ánh sáng chuẩn).
-2. **PlantDoc:** Ảnh chụp lá cây trong điều kiện thực tế ngoài đồng ruộng (bối cảnh phức tạp).
+| Area | Details |
+|---|---|
+| Task | Multi-class plant leaf disease classification |
+| Framework | PyTorch & FastAPI |
+| Model | ResNet18 with ImageNet-pretrained weights + Grad-CAM |
+| Dataset | PlantVillage + PlantDoc (Hybrid) |
+| Images used | 54,305 |
+| Final test accuracy | [Update with your Phase 2 metrics]% |
+| Final macro F1-score | [Update with your Phase 2 metrics] |
+| Final weighted F1-score | [Update with your Phase 2 metrics] |
 
-**Quy mô dữ liệu:** Tổng cộng **54.305** bức ảnh.
-- Tập huấn luyện (Training): `43.444` ảnh
-- Tập xác thực (Validation): `5.430` ảnh
-- Tập kiểm thử (Test): `5.431` ảnh
+## Why I built this
 
-*(Ghi chú: Quá trình trộn dữ liệu được tự động hóa thông qua script `scripts/merge_data.py`)*.
+Plant diseases can reduce crop quality and yield, and visual diagnosis is difficult to scale when many plants need to be checked. Computer vision can help by providing a fast first-pass classification from leaf images.
 
----
+For this project, I wanted to focus on a complete pipeline instead of only showing a final accuracy score. That meant building a workflow that includes data merging, preprocessing, training, visual reporting (Explainable AI via Grad-CAM), and a usable Web API for end-users.
 
-## Cấu trúc thư mục
+## Results
+
+The model was trained in two phases. In the first phase, the ResNet18 backbone was frozen and only the classification head was trained. In the second phase, the full model was fine-tuned.
+
+| Phase | Training setup | Test accuracy | Macro F1-score | Weighted F1-score |
+|---|---|---:|---:|---:|
+| Phase 1 | Frozen backbone | [Your Acc]% | [Your Score] | [Your Score] |
+| Phase 2 | Full fine-tuning | **[Your Acc]%** | **[Your Score]** | **[Your Score]** |
+
+The final model performs strongly on the combined hybrid test set. I included macro F1-score because accuracy alone can hide weaker performance on smaller classes.
+
+## Visual evaluation
+
+### Training curves
+
+![Phase 2 training curves](results/training_curves_phase2.png)
+
+### Confusion matrix
+
+![Phase 2 confusion matrix](results/confusion_matrix_phase2.png)
+
+### Per-class F1-score
+
+![Phase 2 per-class F1-score](results/per_class_f1_phase2.png)
+
+## Dataset
+
+The project uses a hybrid dataset combining controlled laboratory images (PlantVillage) and real-world field images (PlantDoc).
+
+| Split | Images |
+|---|---:|
+| Training | 43,444 |
+| Validation | 5,430 |
+| Test | 5,431 |
+| Total | 54,305 |
+
+| Dataset property | Value |
+|---|---:|
+| Number of classes | [Update with your class count] |
+| Largest class count | [Update with your class count] |
+| Smallest class count | [Update with your class count] |
+| Imbalance ratio | [Update with your ratio] |
+
+The dataset is not included in this repository because of size and licensing considerations. To run the project locally, run the provided `merge_data.py` script to structure the `data/` directory using an image-folder layout:
+
+```text
+data/
+└── PlantVillage/
+    ├── pd_train_...
+    ├── Tomato___Bacterial_spot/
+    └── ...
+```
+
+## Method
+
+The workflow follows these steps:
+
+1. Inspect the datasets and class distribution
+2. Merge PlantVillage and PlantDoc into a hybrid dataset via Python scripts
+3. Prepare image transformations and augmentation
+4. Create stratified train, validation, and test splits
+5. Train a ResNet18 classifier with transfer learning
+6. Extract Grad-CAM heatmaps for Explainable AI (XAI)
+7. Deploy the model using a FastAPI backend and HTML/JS frontend
+
+## Model details
+
+| Item | Value |
+|---|---|
+| Architecture | ResNet18 |
+| Pretraining | ImageNet |
+| Input size | 224 × 224 |
+| Loss function | Class-weighted cross-entropy |
+| Web API | FastAPI + Uvicorn |
+| Explainability | Gradient-weighted Class Activation Mapping (Grad-CAM) |
+
+## Repository structure
 
 ```text
 plant-disease-ai/
-├── data/                       # Dữ liệu gốc (đã được cấu hình trong .gitignore)
-├── docs/                       # Tài liệu báo cáo, sơ đồ kiến trúc
-├── frontend/                   # Giao diện người dùng (HTML/CSS/JS)
-├── models/                     # Trọng số mô hình đã train (ví dụ: resnet18_phase2_best.pth)
-├── notebooks/                  # Các file Jupyter Notebook thử nghiệm & trực quan hóa
-├── results/                    # Biểu đồ đánh giá loss, ma trận nhầm lẫn
-├── scripts/                    # Các script phụ trợ (merge data, vẽ biểu đồ...)
-├── src/                        # Mã nguồn cốt lõi của pipeline AI
+├── data/                       
+├── docs/                       
+├── frontend/                   
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+├── models/                     
+│   └── resnet18_phase2_best.pth
+├── notebooks/                  
+│   ├── 01_full_pipeline.ipynb
+│   ├── 02_demo.ipynb
+│   └── 03_demoRad.ipynb
+├── results/                    
+├── scripts/                    
+│   └── merge_data.py
+├── src/                        
 │   ├── dataset.py
 │   ├── disease_database.py
 │   ├── evaluate.py
@@ -47,29 +132,34 @@ plant-disease-ai/
 │   ├── model.py
 │   ├── train.py
 │   └── utils.py
-├── app.py                      # Điểm khởi chạy FastAPI Backend
-├── diseases.json               # Cơ sở dữ liệu thông tin bệnh học và cách phòng ngừa
-├── README.md
-└── requirements.txt            # Danh sách thư viện cần thiết
+├── app.py                      
+├── requirements.txt            
+└── .gitignore
 
-Hướng dẫn cài đặt và chạy thử (Local & Public)
+## Source files
 
-Bước 1: Cài đặt môi trường
-Đảm bảo bạn đã cài đặt Python (khuyên dùng bản 3.10+). Mở Terminal tại thư mục gốc của dự án:
+| File | Purpose |
+|---|---|
+| `app.py` | FastAPI server entry point |
+| `scripts/merge_data.py` | Combines PlantDoc and PlantVillage datasets |
+| `src/gradcam.py` | Heatmap generation logic |
+| `src/disease_database.py` | JSON database lookup for frontend results |
+| `src/train.py` | Training and fine-tuning logic |
 
-# Tạo môi trường ảo
-python -m venv venv
+## What is not included
 
-# Kích hoạt môi trường ảo (Windows)
-.\venv\Scripts\activate
+The repository intentionally excludes large or local-only files:
 
-# Cài đặt các thư viện cần thiết
-pip install -r requirements.txt
+- the full dataset (`data/`)
+- virtual environment folders (`venv/`)
+- local archive folders
 
-Bước 2: Khởi động Backend (FastAPI)
-Đảm bảo file trọng số mô hình .pth đã có trong thư mục models/. Chạy lệnh sau để bật server API:
-uvicorn app:app --reload
-API sẽ chạy tại địa chỉ: http://127.0.0.1:8000.
+This keeps the repository easier to review and clone.
 
-Bước 3: Chạy Frontend
-frontend/index.html và chọn Open with Live Server.
+## Next steps
+
+The most useful improvements would be:
+
+- Evaluate the hybrid model's robustness on a completely unseen third-party dataset
+- Expand the detection system to include livestock and poultry diseases via YOLO object detection
+- Compare ResNet18 performance with EfficientNet-B0 or MobileNetV3 for faster edge inference
