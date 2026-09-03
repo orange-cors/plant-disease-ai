@@ -20,10 +20,7 @@ from src.gradcam import predict_with_gradcam
 from src.disease_database import get_disease
 
 
-# ============================================================
 # PROJECT PATH
-# ============================================================
-
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 DATABASE_PATH = (
@@ -33,10 +30,7 @@ DATABASE_PATH = (
 )
 
 
-# ============================================================
 # FASTAPI
-# ============================================================
-
 app = FastAPI(
     title="AI Plant Disease API",
     description="API nhận dạng và chẩn đoán bệnh trên lá cây bằng AI",
@@ -44,10 +38,7 @@ app = FastAPI(
 )
 
 
-# ============================================================
 # CORS
-# ============================================================
-
 app.add_middleware(
     CORSMiddleware,
 
@@ -61,10 +52,7 @@ app.add_middleware(
 )
 
 
-# ============================================================
 # DEVICE
-# ============================================================
-
 device = torch.device(
     "cuda"
     if torch.cuda.is_available()
@@ -79,11 +67,6 @@ print(
     f"Device: {device}"
 )
 
-
-# ============================================================
-# LOAD MODEL
-# ============================================================
-
 print("Loading trained model...")
 
 model = load_best_model(
@@ -93,10 +76,7 @@ model = load_best_model(
 print("AI model ready.")
 
 
-# ============================================================
 # LOAD DISEASE DATABASE
-# ============================================================
-
 if not DATABASE_PATH.exists():
 
     raise FileNotFoundError(
@@ -119,10 +99,7 @@ print(
 )
 
 
-# ============================================================
 # HEALTH CHECK
-# ============================================================
-
 @app.get("/")
 def root():
 
@@ -139,37 +116,24 @@ def root():
     }
 
 
-# ============================================================
 # PREDICT
-# ============================================================
-
 @app.post("/api/predict")
 def predict_disease(
     file: UploadFile = File(...)
 ):
-
-    # --------------------------------------------------------
-    # Validate file
-    # --------------------------------------------------------
-
     if not file.content_type:
 
         raise HTTPException(
             status_code=400,
             detail="Không xác định được loại file."
         )
-
-
     allowed_types = [
         "image/jpeg",
         "image/jpg",
         "image/png",
         "image/webp"
     ]
-
-
     if file.content_type not in allowed_types:
-
         raise HTTPException(
             status_code=400,
             detail=(
@@ -177,14 +141,7 @@ def predict_disease(
                 "Chỉ hỗ trợ JPG, PNG, WEBP."
             )
         )
-
-
-    # --------------------------------------------------------
-    # Read image
-    # --------------------------------------------------------
-
     try:
-
         image_bytes = file.file.read()
 
         image = Image.open(
@@ -199,14 +156,7 @@ def predict_disease(
             status_code=400,
             detail=f"Không thể đọc ảnh: {str(e)}"
         )
-
-
-    # --------------------------------------------------------
-    # AI + GRAD-CAM
-    # --------------------------------------------------------
-
     try:
-
         result = predict_with_gradcam(
             model=model,
             image=image,
@@ -227,12 +177,6 @@ def predict_disease(
                 f"{str(e)}"
             )
         )
-
-
-    # --------------------------------------------------------
-    # Prediction information
-    # --------------------------------------------------------
-
     predicted_class = result[
         "predicted_class"
     ]
@@ -241,18 +185,9 @@ def predict_disease(
         "confidence"
     ]
 
-
-    # --------------------------------------------------------
-    # Disease database
-    # --------------------------------------------------------
-
     disease_info = get_disease(
         predicted_class
     )
-
-
-    # Nếu get_disease không tìm thấy,
-    # thử lấy trực tiếp từ JSON.
 
     if disease_info is None:
 
@@ -260,11 +195,6 @@ def predict_disease(
             predicted_class,
             {}
         )
-
-
-    # --------------------------------------------------------
-    # Convert images -> Base64
-    # --------------------------------------------------------
 
     original_base64 = base64.b64encode(
         result["original_image"]
@@ -275,18 +205,9 @@ def predict_disease(
         result["gradcam_image"]
     ).decode("utf-8")
 
-
-    # --------------------------------------------------------
-    # RESPONSE
-    # --------------------------------------------------------
-
     return {
 
         "success": True,
-
-        # -----------------------------------------------
-        # AI
-        # -----------------------------------------------
 
         "ai_prediction": predicted_class,
 
@@ -297,27 +218,11 @@ def predict_disease(
                 "confidence_percentage"
             ],
 
-        # -----------------------------------------------
-        # Disease DB key
-        # -----------------------------------------------
-
         "database_key": predicted_class,
-
-        # -----------------------------------------------
-        # Disease information
-        # -----------------------------------------------
 
         "info": disease_info,
 
-        # -----------------------------------------------
-        # Top 5
-        # -----------------------------------------------
-
         "top5": result["top5"],
-
-        # -----------------------------------------------
-        # Images
-        # -----------------------------------------------
 
         "original_image":
             f"data:image/png;base64,{original_base64}",
@@ -327,10 +232,7 @@ def predict_disease(
     }
 
 
-# ============================================================
 # RUN
-# ============================================================
-
 if __name__ == "__main__":
 
     import uvicorn

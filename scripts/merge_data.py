@@ -2,7 +2,6 @@ import os
 import shutil
 from pathlib import Path
 
-# Tự động nhận diện thư mục gốc (nơi bạn đang mở Terminal) thay vì gán cứng C:\Users\...
 PROJECT_ROOT = Path(os.getcwd())
 PLANT_DOC_DIR = PROJECT_ROOT / "data" / "PlantDoc"
 PLANT_VILLAGE_DIR = PROJECT_ROOT / "data" / "PlantVillage"
@@ -40,7 +39,6 @@ CLASS_MAPPING = {
 }
 
 def find_target_folder(base_dir, keyword):
-    """Tự động quét tìm folder chứa keyword bên PlantVillage"""
     for entry in os.listdir(base_dir):
         full_path = base_dir / entry
         if full_path.is_dir() and keyword.lower() in entry.lower():
@@ -54,7 +52,7 @@ def merge_datasets():
     print(f"Đang tìm PlantVillage tại: {PLANT_VILLAGE_DIR} (Tồn tại: {PLANT_VILLAGE_DIR.exists()})\n")
 
     if not PLANT_DOC_DIR.exists() or not PLANT_VILLAGE_DIR.exists():
-        print("❌ DỪNG LẠI: Python vẫn không thấy thư mục data. Hãy kiểm tra Terminal đang mở ở đâu!")
+        print("DỪNG LẠI: Python vẫn không thấy thư mục data. Hãy kiểm tra Terminal đang mở ở đâu!")
         return
 
     total_copied = 0
@@ -62,7 +60,7 @@ def merge_datasets():
     for split_folder in ["train", "test"]:
         split_path = PLANT_DOC_DIR / split_folder
         if not split_path.exists():
-            print(f"⚠️ Skip: Không thấy folder {split_path}")
+            print(f"Skip: Không thấy folder {split_path}")
             continue
 
         print(f"\n---> Đang xử lý: {split_folder}")
@@ -75,7 +73,7 @@ def merge_datasets():
                 continue
 
             if target_dir is None:
-                print(f"⚠️ Không tìm thấy folder tương ứng cho: '{doc_class}' (Keyword: '{target_keyword}')")
+                print(f"Không tìm thấy folder tương ứng cho: '{doc_class}' (Keyword: '{target_keyword}')")
                 continue
 
             images = [f for f in os.listdir(source_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
@@ -96,7 +94,7 @@ def merge_datasets():
             print(f"  + [{doc_class}] -> Copy thành công {copied_in_class} ảnh sang [{target_dir.name}]")
 
     print(f"\n==========================================")
-    print(f"✅ HOÀN TẤT: Đã trộn tổng cộng {total_copied} bức ảnh!")
+    print(f"HOÀN TẤT: Đã trộn tổng cộng {total_copied} bức ảnh!")
     print(f"==========================================")
 
 if __name__ == "__main__":

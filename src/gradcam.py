@@ -13,10 +13,7 @@ from pytorch_grad_cam.utils.image import show_cam_on_image
 from src.utils import DISPLAY_NAMES
 
 
-# ============================================================
 # IMAGE TRANSFORM
-# ============================================================
-
 TRANSFORM = T.Compose([
     T.Resize(256),
     T.CenterCrop(224),
@@ -28,14 +25,8 @@ TRANSFORM = T.Compose([
 ])
 
 
-# ============================================================
 # IMAGE -> TENSOR
-# ============================================================
-
 def prepare_image(image):
-    """
-    PIL Image -> tensor [1, 3, 224, 224]
-    """
 
     image = image.convert("RGB")
 
@@ -44,14 +35,8 @@ def prepare_image(image):
     return tensor.unsqueeze(0)
 
 
-# ============================================================
 # ORIGINAL IMAGE FOR GRAD-CAM
-# ============================================================
-
 def get_display_image(image):
-    """
-    Tạo ảnh RGB 224x224 dạng numpy [0,1]
-    """
 
     image = image.convert("RGB")
 
@@ -80,14 +65,8 @@ def get_display_image(image):
     return rgb
 
 
-# ============================================================
 # NUMPY -> PNG BYTES
-# ============================================================
-
 def numpy_to_png_bytes(image):
-    """
-    numpy RGB [0,1] -> PNG bytes
-    """
 
     image = np.clip(
         image * 255,
@@ -109,42 +88,15 @@ def numpy_to_png_bytes(image):
     return buffer.getvalue()
 
 
-# ============================================================
 # MAIN PREDICTION
-# ============================================================
-
 def predict_with_gradcam(
     model,
     image,
     device
 ):
-    """
-    Chạy toàn bộ:
-
-    Image
-       ↓
-    ResNet18
-       ↓
-    Prediction
-       ↓
-    Top 5
-       ↓
-    Grad-CAM
-
-    Return dictionary.
-    """
-
-    # --------------------------------------------------------
-    # Prepare image
-    # --------------------------------------------------------
-
     input_tensor = prepare_image(
         image
     ).to(device)
-
-    # --------------------------------------------------------
-    # Prediction
-    # --------------------------------------------------------
 
     model.eval()
 
@@ -178,10 +130,6 @@ def predict_with_gradcam(
         .numpy()
     )
 
-    # --------------------------------------------------------
-    # Prediction
-    # --------------------------------------------------------
-
     predicted_idx = int(
         top5_indices[0]
     )
@@ -193,10 +141,6 @@ def predict_with_gradcam(
     confidence = float(
         top5_prob[0]
     )
-
-    # --------------------------------------------------------
-    # Top 5
-    # --------------------------------------------------------
 
     top5 = []
 
@@ -214,11 +158,6 @@ def predict_with_gradcam(
             "percentage": float(prob * 100)
         })
 
-    # --------------------------------------------------------
-    # Grad-CAM
-    # --------------------------------------------------------
-
-    # ResNet18 target layer
     target_layers = [
         model.layer4[-1]
     ]
@@ -233,27 +172,15 @@ def predict_with_gradcam(
         targets=None
     )[0]
 
-    # --------------------------------------------------------
-    # Original image
-    # --------------------------------------------------------
-
     rgb_img = get_display_image(
         image
     )
-
-    # --------------------------------------------------------
-    # Heatmap
-    # --------------------------------------------------------
 
     visualization = show_cam_on_image(
         rgb_img,
         grayscale_cam,
         use_rgb=True
     )
-
-    # --------------------------------------------------------
-    # Convert to PNG
-    # --------------------------------------------------------
 
     original_png = numpy_to_png_bytes(
         rgb_img
@@ -262,10 +189,6 @@ def predict_with_gradcam(
     heatmap_png = numpy_to_png_bytes(
         visualization / 255.0
     )
-
-    # --------------------------------------------------------
-    # Return
-    # --------------------------------------------------------
 
     return {
         "predicted_index": predicted_idx,

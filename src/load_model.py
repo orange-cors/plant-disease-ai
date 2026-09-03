@@ -7,10 +7,6 @@ from src.model import build_model, load_checkpoint
 
 
 def load_best_model(device=None):
-    """
-    Load model ResNet18 đã train từ:
-    models/resnet18_phase2_best.pth
-    """
 
     if device is None:
         device = torch.device(
@@ -37,15 +33,13 @@ def load_best_model(device=None):
     print(f"Model path : {checkpoint_path}")
     print(f"Device     : {device}")
 
-    # 38 class đúng với PlantVillage
     model = build_model(
         n_classes=38,
         freeze_backbone=False
     )
 
     model = model.to(device)
-
-    # Load checkpoint
+    
     load_checkpoint(
         model,
         str(checkpoint_path)
