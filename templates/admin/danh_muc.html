@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Quản lý danh mục - Quản trị TramXanh{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="text-xs text-slate-500 mb-1">
+        <a href="/admin" class="hover:text-green-700 font-semibold">← Bảng điều khiển Quản trị</a>
+    </div>
+    <h1 class="text-2xl font-extrabold text-slate-900">📂 Quản lý danh mục</h1>
+    <p class="text-xs text-slate-500 mt-0.5">Danh mục thuốc bảo vệ thực vật và phân nhóm sản phẩm</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Add Category Form -->
+    <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm h-fit">
+        <h2 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3 mb-4">＋ Thêm danh mục mới</h2>
+        <form action="/admin/danh-muc/them" method="post" class="space-y-4 text-sm">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tên danh mục *</label>
+                <input type="text" name="tenDM" placeholder="Nhập tên danh mục" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Mô tả</label>
+                <textarea name="moTa" rows="3" placeholder="Mô tả nhóm thuốc..." class="w-full px-3.5 py-2 border border-slate-300 rounded-xl"></textarea>
+            </div>
+            <button type="submit" class="w-full btn-primary py-2.5 rounded-xl font-bold text-sm">Lưu danh mục</button>
+        </form>
+    </div>
+
+    <!-- Category List -->
+    <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <table class="w-full text-left border-collapse text-sm">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold text-slate-600 uppercase">
+                    <th class="py-3.5 px-4">Mã DM</th>
+                    <th class="py-3.5 px-4">Tên danh mục</th>
+                    <th class="py-3.5 px-4">Mô tả</th>
+                    <th class="py-3.5 px-4 text-center">Số sản phẩm</th>
+                    <th class="py-3.5 px-4 text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for dm in categories %}
+                <tr>
+                    <td class="py-3.5 px-4 font-bold text-slate-700">{{ dm.maDM }}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">{{ dm.tenDM }}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-600">{{ dm.moTa or '-' }}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="px-2.5 py-1 rounded-full badge-green text-xs font-bold">{{ dm.san_phams|length }}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        <a href="/admin/san-pham?maDM={{ dm.maDM }}" class="text-xs font-bold text-green-700 hover:underline">
+                            Xem sản phẩm →
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Giỏ hàng của bạn - TramXanh{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-extrabold text-slate-800 mb-6">🛒 Giỏ hàng</h1>
+
+{% if error_message %}
+<div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-300 text-red-800 font-bold text-sm flex items-center gap-2" id="cartErrorAlert">
+    <span>⚠️</span>
+    <span>{{ error_message }}</span>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- LEFT TABLE: CART ITEMS -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold text-slate-600 uppercase">
+                            <th class="py-3.5 px-4">Sản phẩm</th>
+                            <th class="py-3.5 px-4">Đơn giá</th>
+                            <th class="py-3.5 px-4 text-center">Số lượng</th>
+                            <th class="py-3.5 px-4">Thành tiền</th>
+                            <th class="py-3.5 px-4 text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm">
+                        {% if cart['items'] %}
+                            {% for item in cart['items'] %}
+                            <tr class="hover:bg-slate-50/60">
+                                <td class="py-4 px-4">
+                                    <div class="flex items-center gap-3">
+                                        <img src="{{ item.hinhAnh }}" alt="{{ item.tenSP }}" class="w-14 h-14 rounded-lg object-contain bg-slate-50 border border-slate-200 p-1">
+                                        <div>
+                                            <a href="/san-pham/{{ item.maSP }}" class="font-bold text-slate-800 hover:text-green-700 block">
+                                                {{ item.tenSP }}
+                                            </a>
+                                            <span class="text-xs text-slate-500">Mã: {{ item.maSP }} | Tồn kho: {{ item.soLuongTonKho }}</span>
+                                            {% if item.hetHang %}
+                                            <span class="block text-xs font-bold text-red-600 mt-0.5">Sản phẩm này hiện tại hết hàng</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-4 font-semibold text-slate-700 whitespace-nowrap">
+                                    {{ item.donGia|vnd }}
+                                </td>
+                                <td class="py-4 px-4">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <form action="/gio-hang/cap-nhat" method="post" class="inline">
+                                            <input type="hidden" name="maSP" value="{{ item.maSP }}">
+                                            <input type="hidden" name="soLuong" value="{{ item.soLuong - 1 }}">
+                                            <button type="submit" class="w-7 h-7 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 font-bold text-slate-700">-</button>
+                                        </form>
+                                        <span class="w-9 text-center font-bold text-slate-800">{{ item.soLuong }}</span>
+                                        <form action="/gio-hang/cap-nhat" method="post" class="inline">
+                                            <input type="hidden" name="maSP" value="{{ item.maSP }}">
+                                            <input type="hidden" name="soLuong" value="{{ item.soLuong + 1 }}">
+                                            <button type="submit" class="w-7 h-7 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 font-bold text-slate-700">+</button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-4 font-extrabold text-green-700 whitespace-nowrap">
+                                    {{ item.thanhTien|vnd }}
+                                </td>
+                                <td class="py-4 px-4 text-center">
+                                    <form action="/gio-hang/xoa" method="post" class="inline">
+                                        <input type="hidden" name="maSP" value="{{ item.maSP }}">
+                                        <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold transition">
+                                            Xóa
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="py-12 px-4 text-center">
+                                    <div class="text-3xl mb-2">🛒</div>
+                                    <p class="font-bold text-slate-700 text-base">Giỏ hàng của bạn đang trống</p>
+                                    <p class="text-xs text-slate-500 mt-1 mb-4">Hãy chọn thêm các sản phẩm thuốc bảo vệ thực vật vào giỏ hàng.</p>
+                                    <a href="/san-pham" class="inline-block px-4 py-2 rounded-lg border border-green-700 text-green-700 font-bold text-xs hover:bg-green-50">
+                                        Tiếp tục mua sắm
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SUMMARY CARD: TÓM TẮT GIỎ HÀNG -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-20">
+            <h2 class="text-lg font-extrabold text-slate-800 border-b border-slate-100 pb-3 mb-4">
+                Tóm tắt giỏ hàng
+            </h2>
+
+            <div class="space-y-3 text-sm mb-6">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">Tổng số lượng:</span>
+                    <span class="font-bold text-slate-800">{{ cart.tongSoLuong }} sản phẩm</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">Phí vận chuyển:</span>
+                    <span class="font-semibold text-green-700">Miễn phí (0 đ)</span>
+                </div>
+                <div class="border-t border-slate-100 pt-3 flex items-center justify-between">
+                    <span class="font-bold text-slate-800 text-base">Tổng tiền:</span>
+                    <span class="font-extrabold text-green-700 text-xl">{{ cart.tongTien|vnd }}</span>
+                </div>
+            </div>
+
+            <form action="/gio-hang/mua-hang" method="post">
+                <button type="submit" class="w-full btn-primary py-3.5 px-6 rounded-xl text-base font-bold shadow-sm">
+                    Mua hàng
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

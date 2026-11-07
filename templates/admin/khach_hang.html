@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Tra cứu khách hàng - Quản trị TramXanh{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <div class="text-xs text-slate-500 mb-1">
+            <a href="/admin" class="hover:text-green-700 font-semibold">← Bảng điều khiển Quản trị</a>
+        </div>
+        <h1 class="text-2xl font-extrabold text-slate-900">👥 Tra cứu khách hàng</h1>
+        <p class="text-xs text-slate-500 mt-0.5">Danh sách và thông tin chi tiết tài khoản khách hàng</p>
+    </div>
+
+    <form action="/admin/khach-hang" method="get" class="flex items-center gap-2">
+        <input
+            type="text"
+            name="tuKhoa"
+            value="{{ tuKhoa or '' }}"
+            placeholder="Tìm theo tên, SĐT, địa chỉ..."
+            class="px-3.5 py-2 text-sm border border-slate-300 rounded-xl"
+        >
+        <button type="submit" class="btn-primary px-4 py-2 rounded-xl text-sm font-bold">Tìm kiếm</button>
+    </form>
+</div>
+
+<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold text-slate-600 uppercase">
+                    <th class="py-3.5 px-4">Mã KH</th>
+                    <th class="py-3.5 px-4">Họ và tên</th>
+                    <th class="py-3.5 px-4">Số điện thoại</th>
+                    <th class="py-3.5 px-4">Giới tính</th>
+                    <th class="py-3.5 px-4">Ngày sinh</th>
+                    <th class="py-3.5 px-4">Địa chỉ nhận hàng</th>
+                    <th class="py-3.5 px-4 text-center">Số đơn hàng</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for kh in customers %}
+                <tr class="hover:bg-slate-50/70">
+                    <td class="py-3.5 px-4 font-bold text-slate-800">{{ kh.maND }}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">{{ kh.hoTen }}</td>
+                    <td class="py-3.5 px-4 font-semibold text-green-700">{{ kh.soDienThoai }}</td>
+                    <td class="py-3.5 px-4 text-slate-600">{{ kh.gioiTinh or '-' }}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-600">{{ kh.ngaySinh.strftime('%d/%m/%Y') if kh.ngaySinh else '-' }}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-700">{{ kh.diaChiNhanHang or '-' }}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="px-2.5 py-1 rounded-full badge-green text-xs font-bold">{{ kh.don_hangs|length }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Không có quyền truy cập (403) - TramXanh{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto bg-white rounded-3xl border border-red-200 p-10 text-center shadow-sm my-10">
+    <div class="text-5xl mb-4">🚫</div>
+    <h1 class="text-2xl font-extrabold text-red-700 mb-2">Truy cập bị từ chối (403)</h1>
+    <p class="text-sm text-slate-600 mb-6">
+        Bạn không có quyền truy cập vào khu vực Quản trị viên. Vui lòng đăng nhập bằng tài khoản Quản trị viên (QuanTriVien).
+    </p>
+    <div class="flex justify-center gap-3">
+        <a href="/" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm">Về trang chủ</a>
+        <a href="/dang-nhap" class="btn-primary px-5 py-2.5 rounded-xl font-bold text-sm">Đăng nhập Quản trị</a>
+    </div>
+</div>
+{% endblock %}
+

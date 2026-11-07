@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Quản lý đơn hàng - Quản trị TramXanh{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="text-xs text-slate-500 mb-1">
+        <a href="/admin" class="hover:text-green-700 font-semibold">← Bảng điều khiển Quản trị</a>
+    </div>
+    <h1 class="text-2xl font-extrabold text-slate-900">📦 Quản lý đơn hàng</h1>
+    <p class="text-xs text-slate-500 mt-0.5">Theo dõi và cập nhật trạng thái đơn đặt hàng COD của khách hàng</p>
+</div>
+
+<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold text-slate-600 uppercase">
+                    <th class="py-3.5 px-4">Mã ĐH</th>
+                    <th class="py-3.5 px-4">Ngày đặt</th>
+                    <th class="py-3.5 px-4">Người nhận & SĐT</th>
+                    <th class="py-3.5 px-4">Địa chỉ nhận hàng</th>
+                    <th class="py-3.5 px-4">Tổng tiền</th>
+                    <th class="py-3.5 px-4">Trạng thái</th>
+                    <th class="py-3.5 px-4">Cập nhật trạng thái</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for dh in orders %}
+                <tr class="hover:bg-slate-50/70">
+                    <td class="py-3.5 px-4 font-bold text-slate-800">{{ dh.maDH }}</td>
+                    <td class="py-3.5 px-4 text-xs text-slate-600">{{ dh.ngayDat.strftime('%d/%m/%Y') if dh.ngayDat else '' }}</td>
+                    <td class="py-3.5 px-4">
+                        <div class="font-bold text-slate-800">{{ dh.hoTenNguoiNhan }}</div>
+                        <div class="text-xs text-slate-500">{{ dh.soDienThoaiNguoiNhan }}</div>
+                    </td>
+                    <td class="py-3.5 px-4 text-xs text-slate-700">{{ dh.diaChiNhanHang }}</td>
+                    <td class="py-3.5 px-4 font-extrabold text-green-700">{{ dh.tongTien|vnd }}</td>
+                    <td class="py-3.5 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold {% if dh.trangThai == 'Đã hủy' %}bg-red-100 text-red-700{% else %}badge-green{% endif %}">
+                            {{ dh.trangThai }}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <form action="/admin/don-hang/cap-nhat/{{ dh.maDH }}" method="post" class="flex items-center gap-2">
+                            <select name="trangThai" class="px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+                                {% for st in ['Chờ xác nhận', 'Đang chuẩn bị hàng', 'Đang giao hàng', 'Đã giao hàng', 'Đã hủy'] %}
+                                <option value="{{ st }}" {% if dh.trangThai == st %}selected{% endif %}>{{ st }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn-primary px-3 py-1.5 rounded-lg text-xs font-bold">Lưu</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

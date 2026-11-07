@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}{{ sp.tenSP }} - Chi tiết sản phẩm | TramXanh{% endblock %}
+
+{% block content %}
+<div class="mb-4 text-xs text-slate-500 flex items-center gap-2">
+    <a href="/" class="hover:text-green-700">Trang chủ</a>
+    <span>/</span>
+    <a href="/san-pham" class="hover:text-green-700">Sản phẩm</a>
+    <span>/</span>
+    <span class="text-slate-800 font-semibold">{{ sp.tenSP }}</span>
+</div>
+
+<div class="bg-white rounded-3xl border border-slate-200 p-6 md:p-10 shadow-sm mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <!-- Product Image -->
+        <div class="bg-slate-50 rounded-2xl p-8 flex items-center justify-center border border-slate-100">
+            <img src="{{ sp.hinhAnh or '/static/images/sp01.svg' }}" alt="{{ sp.tenSP }}" class="max-h-80 w-auto object-contain">
+        </div>
+
+        <!-- Product Info -->
+        <div class="flex flex-col justify-between">
+            <div>
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="px-3 py-1 rounded-full badge-green text-xs font-bold">Mã SP: {{ sp.maSP }}</span>
+                    {% if sp.danh_muc %}
+                    <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">{{ sp.danh_muc.tenDM }}</span>
+                    {% endif %}
+                    {% if sp.soLuongTonKho > 0 %}
+                    <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">Còn hàng ({{ sp.soLuongTonKho }})</span>
+                    {% else %}
+                    <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">Sản phẩm này hiện tại hết hàng</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-3">{{ sp.tenSP }}</h1>
+                <div class="text-3xl font-extrabold text-green-700 mb-6">{{ sp.donGia|vnd }}</div>
+
+                <div class="space-y-3 text-sm border-t border-b border-slate-100 py-5 mb-6">
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-500 font-semibold">Thương hiệu:</span>
+                        <span class="col-span-2 font-bold text-slate-800">{{ sp.thuongHieu or 'Trạm Xanh CropCare' }}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-500 font-semibold">Thành phần hoạt chất:</span>
+                        <span class="col-span-2 text-slate-800 font-medium">{{ sp.thanhPhan or 'Đang cập nhật' }}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-500 font-semibold">Đối tượng sử dụng:</span>
+                        <span class="col-span-2 font-bold text-green-800">🌱 {{ sp.doiTuongSuDung or 'Cà chua, Khoai tây, Ớt chuông, Ngô' }}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-500 font-semibold">Số lượng tồn kho:</span>
+                        <span class="col-span-2 font-bold text-slate-800">{{ sp.soLuongTonKho }} sản phẩm</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-500 font-semibold">Hạn sử dụng:</span>
+                        <span class="col-span-2 text-slate-800">{{ sp.hanSuDung.strftime('%d/%m/%Y') if sp.hanSuDung else '31/12/2028' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add to Cart Form -->
+            <form action="/gio-hang/them" method="post" class="flex flex-wrap items-center gap-4">
+                <input type="hidden" name="maSP" value="{{ sp.maSP }}">
+                <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden">
+                    <span class="px-3 py-2.5 text-xs font-bold text-slate-500 bg-slate-50">Số lượng</span>
+                    <input
+                        type="number"
+                        name="soLuong"
+                        value="1"
+                        min="1"
+                        max="99"
+                        class="w-20 text-center py-2.5 text-sm font-bold focus:outline-none"
+                    >
+                </div>
+                <button type="submit" class="flex-1 btn-primary py-3 px-6 rounded-xl text-base font-bold shadow-sm">
+                    🛒 Thêm vào giỏ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detailed Usage & Instructions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10 pt-8 border-t border-slate-100">
+        <div class="bg-green-50/60 rounded-2xl p-6 border border-green-100">
+            <h3 class="text-base font-extrabold text-green-900 mb-2">✨ Công dụng chính</h3>
+            <p class="text-sm text-slate-700 leading-relaxed">{{ sp.congDung or 'Phòng và đặc trị sâu bệnh hại cây hoa màu.' }}</p>
+        </div>
+        <div class="bg-amber-50/60 rounded-2xl p-6 border border-amber-100">
+            <h3 class="text-base font-extrabold text-amber-900 mb-2">📋 Hướng dẫn sử dụng an toàn</h3>
+            <p class="text-sm text-slate-700 leading-relaxed">{{ sp.huongDanSuDung or 'Pha theo liều lượng khuyến cáo trên bao bì, phun vào sáng sớm hoặc chiều mát.' }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

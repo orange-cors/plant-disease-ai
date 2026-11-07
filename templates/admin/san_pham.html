@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+{% block title %}Quản lý sản phẩm - Quản trị TramXanh{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <div class="text-xs text-slate-500 mb-1">
+            <a href="/admin" class="hover:text-green-700 font-semibold">← Bảng điều khiển Quản trị</a>
+        </div>
+        <h1 class="text-2xl font-extrabold text-slate-900">🧪 Quản lý sản phẩm</h1>
+        <p class="text-xs text-slate-500 mt-0.5">Xem danh sách theo danh mục, thêm mới, chỉnh sửa và xóa sản phẩm thuốc bảo vệ thực vật</p>
+    </div>
+
+    <button
+        type="button"
+        id="openAddModalBtn"
+        onclick="openAddModal()"
+        class="btn-primary px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm flex items-center gap-2"
+    >
+        <span>＋ Thêm mới</span>
+    </button>
+</div>
+
+{% if error_message %}
+<div class="mb-6 p-4 rounded-xl bg-red-50 border border-red-300 text-red-800 font-bold text-sm flex items-center gap-2" id="adminProductError">
+    <span>⚠️</span>
+    <span>{{ error_message }}</span>
+</div>
+{% endif %}
+
+{% if success_message %}
+<div class="mb-6 p-4 rounded-xl bg-green-50 border border-green-300 text-green-800 font-bold text-sm flex items-center gap-2" id="adminProductSuccess">
+    <span>✅</span>
+    <span>{{ success_message }}</span>
+</div>
+{% endif %}
+
+<!-- CATEGORY FILTER BAR (TC14) -->
+<div class="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+    <form action="/admin/san-pham" method="get" class="flex flex-wrap items-center gap-3">
+        <label class="text-xs font-bold text-slate-700">Lọc theo danh mục:</label>
+        <select
+            name="maDM"
+            id="adminCategorySelect"
+            onchange="this.form.submit()"
+            class="px-3.5 py-2 text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-green-700 font-semibold"
+        >
+            <option value="">Tất cả danh mục ({{ total_all_products }} sản phẩm)</option>
+            {% for dm in categories %}
+            <option value="{{ dm.maDM }}" {% if selected_maDM == dm.maDM %}selected{% endif %}>
+                {{ dm.maDM }} - {{ dm.tenDM }}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">
+            Xem danh sách
+        </button>
+        {% if selected_maDM %}
+        <a href="/admin/san-pham" class="text-xs font-bold text-green-700 hover:underline ml-2">Hiển thị tất cả</a>
+        {% endif %}
+    </form>
+
+    <div class="text-xs font-semibold text-slate-500">
+        Đang hiển thị: <strong class="text-slate-800">{{ products|length }}</strong> sản phẩm
+    </div>
+</div>
+
+<!-- PRODUCT TABLE OR EMPTY CATEGORY MESSAGE (TC09 / Branch 4.1) -->
+<div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    {% if products %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold text-slate-600 uppercase">
+                    <th class="py-3.5 px-4">Mã SP</th>
+                    <th class="py-3.5 px-4">Hình ảnh</th>
+                    <th class="py-3.5 px-4">Tên sản phẩm</th>
+                    <th class="py-3.5 px-4">Danh mục</th>
+                    <th class="py-3.5 px-4">Đối tượng cây trồng</th>
+                    <th class="py-3.5 px-4">Đơn giá</th>
+                    <th class="py-3.5 px-4 text-center">Tồn kho</th>
+                    <th class="py-3.5 px-4 text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for sp in products %}
+                <tr class="hover:bg-slate-50/70">
+                    <td class="py-3.5 px-4 font-bold text-slate-700">{{ sp.maSP }}</td>
+                    <td class="py-3.5 px-4">
+                        <img src="{{ sp.hinhAnh or '/static/images/sp01.svg' }}" alt="{{ sp.tenSP }}" class="w-12 h-12 rounded-lg object-contain bg-slate-50 border border-slate-200 p-1">
+                    </td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">
+                        {{ sp.tenSP }}
+                        <span class="block text-xs font-normal text-slate-500">{{ sp.thuongHieu or '' }}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-xs font-semibold text-slate-600">
+                        {{ sp.danh_muc.tenDM if sp.danh_muc else sp.DanhMucmaDM }}
+                    </td>
+                    <td class="py-3.5 px-4 text-xs font-semibold text-green-700">
+                        {{ sp.doiTuongSuDung or '-' }}
+                    </td>
+                    <td class="py-3.5 px-4 font-extrabold text-green-700 whitespace-nowrap">
+                        {{ sp.donGia|vnd }}
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold {% if sp.soLuongTonKho <= 0 %}bg-red-100 text-red-700{% else %}badge-green{% endif %}">
+                            {{ sp.soLuongTonKho }}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div class="inline-flex items-center gap-2">
+                            <button
+                                type="button"
+                                onclick='openEditModal({{ {
+                                    "maSP": sp.maSP,
+                                    "tenSP": sp.tenSP,
+                                    "DanhMucmaDM": sp.DanhMucmaDM or "",
+                                    "donGia": sp.donGia,
+                                    "soLuongTonKho": sp.soLuongTonKho,
+                                    "hinhAnh": sp.hinhAnh or "/static/images/sp01.svg",
+                                    "congDung": sp.congDung or "",
+                                    "doiTuongSuDung": sp.doiTuongSuDung or "",
+                                    "huongDanSuDung": sp.huongDanSuDung or "",
+                                    "thuongHieu": sp.thuongHieu or "",
+                                    "thanhPhan": sp.thanhPhan or "",
+                                    "hanSuDung": sp.hanSuDung.strftime("%Y-%m-%d") if sp.hanSuDung else "2028-12-31"
+                                }|tojson }})'
+                                class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 text-xs font-bold transition"
+                            >
+                                ✏️ Chỉnh sửa
+                            </button>
+                            <button
+                                type="button"
+                                onclick="openDeleteModal('{{ sp.maSP }}', '{{ sp.tenSP|e }}')"
+                                class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 text-xs font-bold transition"
+                                title="Xóa sản phẩm"
+                            >
+                                🗑️ Thùng rác
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <!-- Exact Message for Empty Category (TC09 / Branch 4.1) -->
+    <div class="py-16 px-6 text-center" id="emptyCategoryMessage">
+        <div class="text-4xl mb-3">📭</div>
+        <h3 class="text-lg font-extrabold text-slate-800">Chưa có sản phẩm nào được tạo</h3>
+        <p class="text-xs text-slate-500 mt-1 mb-5">Danh mục này hiện chưa có sản phẩm nào trong hệ thống.</p>
+        <button type="button" onclick="openAddModal()" class="btn-primary px-5 py-2.5 rounded-xl text-xs font-bold">
+            ＋ Thêm mới sản phẩm ngay
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ADD PRODUCT MODAL (TC15, TC16) -->
+<div id="addProductModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-xl border border-slate-200 my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
+            <h3 class="text-lg font-extrabold text-slate-900">＋ Thêm mới sản phẩm</h3>
+            <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+        </div>
+
+        <form action="/admin/san-pham/them" method="post" novalidate class="space-y-4 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tên sản phẩm (tenSP) *</label>
+                    <input type="text" name="tenSP" placeholder="Nhập tên sản phẩm" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Danh mục (DanhMucmaDM) *</label>
+                    <select name="DanhMucmaDM" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl bg-white">
+                        <option value="">-- Chọn danh mục --</option>
+                        {% for dm in categories %}
+                        <option value="{{ dm.maDM }}" {% if selected_maDM == dm.maDM %}selected{% endif %}>{{ dm.tenDM }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Đơn giá (VNĐ) *</label>
+                    <input type="number" name="donGia" placeholder="VD: 95000" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Số lượng tồn kho</label>
+                    <input type="number" name="soLuongTonKho" value="50" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Hạn sử dụng</label>
+                    <input type="date" name="hanSuDung" value="2028-12-31" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Đối tượng sử dụng (Cây trồng)</label>
+                    <input type="text" name="doiTuongSuDung" placeholder="VD: Cà chua, Khoai tây, Ngô" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Thương hiệu</label>
+                    <input type="text" name="thuongHieu" placeholder="VD: Trạm Xanh CropCare" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Thành phần hoạt chất</label>
+                    <input type="text" name="thanhPhan" placeholder="VD: Mancozeb 640g/kg" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Đường dẫn hình ảnh</label>
+                    <input type="text" name="hinhAnh" value="/static/images/sp01.svg" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Công dụng</label>
+                <textarea name="congDung" rows="2" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Hướng dẫn sử dụng</label>
+                <textarea name="huongDanSuDung" rows="2" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeAddModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm">
+                    Hủy bỏ
+                </button>
+                <button type="submit" class="btn-primary px-6 py-2.5 rounded-xl font-bold text-sm">
+                    Lưu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL (TC17, TC18) -->
+<div id="editProductModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-xl border border-slate-200 my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-5">
+            <h3 class="text-lg font-extrabold text-slate-900">✏️ Chỉnh sửa sản phẩm (<span id="editModalMaSP"></span>)</h3>
+            <button type="button" onclick="closeEditModal()" class="text-slate-400 hover:text-slate-700 font-bold">✕</button>
+        </div>
+
+        <form id="editProductForm" action="" method="post" novalidate class="space-y-4 text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tên sản phẩm (tenSP) *</label>
+                    <input type="text" name="tenSP" id="edit_tenSP" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Danh mục (DanhMucmaDM) *</label>
+                    <select name="DanhMucmaDM" id="edit_DanhMucmaDM" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl bg-white">
+                        <option value="">-- Chọn danh mục --</option>
+                        {% for dm in categories %}
+                        <option value="{{ dm.maDM }}">{{ dm.tenDM }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Đơn giá (VNĐ) *</label>
+                    <input type="number" name="donGia" id="edit_donGia" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Số lượng tồn kho</label>
+                    <input type="number" name="soLuongTonKho" id="edit_soLuongTonKho" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Hạn sử dụng</label>
+                    <input type="date" name="hanSuDung" id="edit_hanSuDung" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Đối tượng sử dụng (Cây trồng)</label>
+                    <input type="text" name="doiTuongSuDung" id="edit_doiTuongSuDung" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Thương hiệu</label>
+                    <input type="text" name="thuongHieu" id="edit_thuongHieu" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Thành phần hoạt chất</label>
+                    <input type="text" name="thanhPhan" id="edit_thanhPhan" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Đường dẫn hình ảnh</label>
+                    <input type="text" name="hinhAnh" id="edit_hinhAnh" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Công dụng</label>
+                <textarea name="congDung" id="edit_congDung" rows="2" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Hướng dẫn sử dụng</label>
+                <textarea name="huongDanSuDung" id="edit_huongDanSuDung" rows="2" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm">
+                    Hủy bỏ
+                </button>
+                <button type="submit" class="btn-primary px-6 py-2.5 rounded-xl font-bold text-sm">
+                    Cập nhật
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL (TC19, TC20, TC21) -->
+<div id="deleteProductModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-xl border border-slate-200 text-center">
+        <div class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mx-auto mb-4">🗑️</div>
+        <h3 class="text-lg font-extrabold text-slate-900 mb-2" id="deleteConfirmText">
+            Bạn có chắc chắn muốn xóa sản phẩm này?
+        </h3>
+        <p class="text-xs text-slate-500 mb-6" id="deleteProductNameSub"></p>
+
+        <form id="deleteProductForm" action="" method="post" class="flex items-center justify-center gap-3">
+            <button
+                type="button"
+                id="cancelDeleteBtn"
+                onclick="closeDeleteModal()"
+                class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-sm"
+            >
+                Hủy bỏ
+            </button>
+            <button
+                type="submit"
+                id="confirmDeleteBtn"
+                class="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm"
+            >
+                Xác nhận
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function openAddModal() {
+    const m = document.getElementById('addProductModal');
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+}
+function closeAddModal() {
+    const m = document.getElementById('addProductModal');
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+}
+function openEditModal(sp) {
+    document.getElementById('editModalMaSP').innerText = sp.maSP;
+    document.getElementById('editProductForm').action = '/admin/san-pham/cap-nhat/' + sp.maSP;
+    document.getElementById('edit_tenSP').value = sp.tenSP;
+    document.getElementById('edit_DanhMucmaDM').value = sp.DanhMucmaDM;
+    document.getElementById('edit_donGia').value = sp.donGia;
+    document.getElementById('edit_soLuongTonKho').value = sp.soLuongTonKho;
+    document.getElementById('edit_hanSuDung').value = sp.hanSuDung;
+    document.getElementById('edit_doiTuongSuDung').value = sp.doiTuongSuDung;
+    document.getElementById('edit_thuongHieu').value = sp.thuongHieu;
+    document.getElementById('edit_thanhPhan').value = sp.thanhPhan;
+    document.getElementById('edit_hinhAnh').value = sp.hinhAnh;
+    document.getElementById('edit_congDung').value = sp.congDung;
+    document.getElementById('edit_huongDanSuDung').value = sp.huongDanSuDung;
+
+    const m = document.getElementById('editProductModal');
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+}
+function closeEditModal() {
+    const m = document.getElementById('editProductModal');
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+}
+function openDeleteModal(maSP, tenSP) {
+    document.getElementById('deleteProductForm').action = '/admin/san-pham/xoa/' + maSP;
+    document.getElementById('deleteProductNameSub').innerText = maSP + ' - ' + tenSP;
+    const m = document.getElementById('deleteProductModal');
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+}
+function closeDeleteModal() {
+    const m = document.getElementById('deleteProductModal');
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+}
+</script>
+{% endblock %}
+

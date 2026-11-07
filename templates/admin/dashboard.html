@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Quản trị hệ thống - TramXanh{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase">ADMIN DASHBOARD</span>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">Bảng điều khiển Quản trị viên</h1>
+        <p class="text-sm text-slate-500 mt-1">Quản lý danh mục, sản phẩm thuốc BVTV, đơn hàng COD và thông tin khách hàng</p>
+    </div>
+    <div class="text-xs text-slate-500 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
+        🗄️ Cơ sở dữ liệu đang kết nối: <strong class="text-green-700">{{ db_backend }}</strong>
+    </div>
+</div>
+
+<!-- 4 MANAGEMENT CARDS (WIREFRAME 3.15) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <!-- Card 1: Quản lý danh mục -->
+    <a href="/admin/danh-muc" class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:border-green-600 hover:shadow-md transition group flex flex-col justify-between">
+        <div>
+            <div class="w-14 h-14 rounded-2xl bg-green-100 text-green-700 flex items-center justify-center text-2xl mb-4">📂</div>
+            <h2 class="text-lg font-extrabold text-slate-800 group-hover:text-green-700">Quản lý danh mục</h2>
+            <p class="text-xs text-slate-500 mt-1">Danh mục thuốc và cây trồng</p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">Tổng số: {{ stats.categories_count }} danh mục</span>
+            <span class="text-xs font-extrabold text-green-700">Truy cập →</span>
+        </div>
+    </a>
+
+    <!-- Card 2: Quản lý sản phẩm -->
+    <a href="/admin/san-pham" class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:border-green-600 hover:shadow-md transition group flex flex-col justify-between">
+        <div>
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl mb-4">🧪</div>
+            <h2 class="text-lg font-extrabold text-slate-800 group-hover:text-green-700">Quản lý sản phẩm</h2>
+            <p class="text-xs text-slate-500 mt-1">Sản phẩm, đơn giá và tồn kho</p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">Tổng số: {{ stats.products_count }} sản phẩm</span>
+            <span class="text-xs font-extrabold text-green-700">Truy cập →</span>
+        </div>
+    </a>
+
+    <!-- Card 3: Quản lý đơn hàng -->
+    <a href="/admin/don-hang" class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:border-green-600 hover:shadow-md transition group flex flex-col justify-between">
+        <div>
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-4">📦</div>
+            <h2 class="text-lg font-extrabold text-slate-800 group-hover:text-green-700">Quản lý đơn hàng</h2>
+            <p class="text-xs text-slate-500 mt-1">Chi tiết đơn hàng và trạng thái</p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">Tổng số: {{ stats.orders_count }} đơn hàng</span>
+            <span class="text-xs font-extrabold text-green-700">Truy cập →</span>
+        </div>
+    </a>
+
+    <!-- Card 4: Tra cứu khách hàng -->
+    <a href="/admin/khach-hang" class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:border-green-600 hover:shadow-md transition group flex flex-col justify-between">
+        <div>
+            <div class="w-14 h-14 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl mb-4">👥</div>
+            <h2 class="text-lg font-extrabold text-slate-800 group-hover:text-green-700">Tra cứu khách hàng</h2>
+            <p class="text-xs text-slate-500 mt-1">Thông tin tài khoản khách hàng</p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-500">Tổng số: {{ stats.customers_count }} khách hàng</span>
+            <span class="text-xs font-extrabold text-green-700">Truy cập →</span>
+        </div>
+    </a>
+</div>
+{% endblock %}
+

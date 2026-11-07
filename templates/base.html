@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TramXanh - Phân phối thuốc BVTV & Nhận diện bệnh cây bằng AI{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .btn-primary {
+            background-color: #15803d;
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #166534;
+        }
+        .badge-green {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER NAVIGATION -->
+    <header class="bg-white border-b border-emerald-100 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between py-3 gap-4">
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2.5 group">
+                    <div class="w-10 h-10 rounded-xl bg-green-700 text-white font-extrabold text-xl flex items-center justify-center shadow-sm group-hover:bg-green-800 transition">
+                        T
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold text-green-800 tracking-tight block leading-none">TramXanh</span>
+                        <span class="text-[11px] text-slate-500 font-medium">Thuốc BVTV & AI Bệnh Cây</span>
+                    </div>
+                </a>
+
+                <!-- Main Links -->
+                <nav class="flex items-center gap-6 text-sm font-semibold text-slate-700">
+                    <a href="/" class="hover:text-green-700 transition {% if request.url.path == '/' %}text-green-700 font-bold{% endif %}">Trang chủ</a>
+                    <a href="/san-pham" class="hover:text-green-700 transition {% if request.url.path.startswith('/san-pham') %}text-green-700 font-bold{% endif %}">Sản phẩm</a>
+                    <a href="/nhan-dien-benh" class="hover:text-green-700 transition flex items-center gap-1.5 {% if request.url.path.startswith('/nhan-dien-benh') %}text-green-700 font-bold{% endif %}">
+                        <span>🌿 Nhận diện bằng AI</span>
+                    </a>
+                    {% if current_user and current_user.vaiTro == 'QuanTriVien' %}
+                    <a href="/admin" class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition font-bold">
+                        ⚙️ Quản trị hệ thống
+                    </a>
+                    {% endif %}
+                </nav>
+
+                <!-- Search Bar -->
+                <form action="/san-pham" method="get" class="flex items-center flex-1 max-w-md">
+                    <input
+                        type="text"
+                        name="tuKhoa"
+                        value="{{ request.query_params.get('tuKhoa', '') }}"
+                        placeholder="Tìm sản phẩm, cây trồng, bệnh..."
+                        class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-l-lg focus:outline-none focus:border-green-700"
+                    >
+                    <button type="submit" class="btn-primary px-4 py-2 text-sm font-semibold rounded-r-lg whitespace-nowrap">
+                        Tìm kiếm
+                    </button>
+                </form>
+
+                <!-- Cart & Account Actions -->
+                <div class="flex items-center gap-3">
+                    <a href="/gio-hang" class="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-green-200 bg-green-50 text-green-800 hover:bg-green-100 text-sm font-semibold transition">
+                        <span>🛒 Giỏ hàng</span>
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-green-700 text-white font-bold">
+                            {{ cart_count|default(0) }}
+                        </span>
+                    </a>
+
+                    {% if current_user %}
+                    <div class="flex items-center gap-2">
+                        <a href="/tai-khoan" class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-semibold transition">
+                            👤 {{ current_user.hoTen }}
+                        </a>
+                        <a href="/dang-xuat" class="px-3 py-2 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-semibold transition">
+                            Đăng xuất
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="flex items-center gap-2">
+                        <a href="/dang-nhap" class="px-3.5 py-2 rounded-lg border border-green-700 text-green-700 hover:bg-green-50 text-sm font-semibold transition">
+                            Tài khoản / Đăng nhập
+                        </a>
+                        <a href="/dang-ky" class="btn-primary px-3.5 py-2 rounded-lg text-sm font-semibold">
+                            Đăng ký
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- FLASH / NOTIFICATION MESSAGES -->
+    {% if flash_message %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        <div id="flashAlert" class="p-4 rounded-xl border flex items-center justify-between shadow-sm {% if flash_type == 'error' %}bg-red-50 border-red-300 text-red-800{% elif flash_type == 'warning' %}bg-amber-50 border-amber-300 text-amber-800{% else %}bg-green-50 border-green-300 text-green-800{% endif %}">
+            <div class="flex items-center gap-2.5 font-semibold text-sm">
+                <span>{% if flash_type == 'error' %}⚠️{% elif flash_type == 'warning' %}🔔{% else %}✅{% endif %}</span>
+                <span id="flashMessageText">{{ flash_message }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-xs font-bold opacity-70 hover:opacity-100 px-2 py-1">✕</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-slate-600">
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-7 h-7 rounded-lg bg-green-700 text-white font-bold flex items-center justify-center">T</div>
+                        <span class="font-extrabold text-green-800 text-base">TramXanh</span>
+                    </div>
+                    <p class="leading-relaxed">
+                        Hệ thống phân phối thuốc bảo vệ thực vật chính hãng tích hợp trí tuệ nhân tạo (AI) hỗ trợ nhận diện bệnh trên cây hoa màu phổ biến ở Đồng bằng sông Hồng.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3">Cây trồng hỗ trợ nhận diện AI</h4>
+                    <ul class="space-y-1.5">
+                        <li>🍅 Cây Cà chua (Đốm lá sớm, Mốc sương, Đốm vi khuẩn, Vàng xoăn lá)</li>
+                        <li>🥔 Cây Khoai tây (Đốm vòng / Cháy lá sớm, Mốc sương khoai tây)</li>
+                        <li>🫑 Cây Ớt chuông (Đốm vi khuẩn ớt chuông)</li>
+                        <li>🌽 Cây Ngô (Cháy lá ngô, Gỉ sắt ngô, Đốm lá xám)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3">Liên hệ & Hỗ trợ nhà nông</h4>
+                    <p>📍 Khu vực phục vụ: Đồng bằng sông Hồng, Việt Nam</p>
+                    <p class="mt-1">📞 Hotline kỹ thuật nông nghiệp: 0900 000 001</p>
+                    <p class="mt-1">💳 Phương thức thanh toán: Giao hàng thu tiền tận nơi (COD)</p>
+                </div>
+            </div>
+            <div class="border-t border-slate-100 mt-6 pt-5 text-center text-xs text-slate-400">
+                © 2026 TramXanh - Website phân phối thuốc bảo vệ thực vật & AI nhận diện bệnh cây hoa màu.
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+
