@@ -784,6 +784,8 @@ class NhanDienBenhController:
             "confidence_percent": conf_pct,
             "confidence_display": conf_display,
             "inference_time_ms": prediction.get("inference_time_ms", 12.0),
+            "backend": prediction.get("backend", ""),
+            "raw_label": prediction.get("raw_label", ""),
             "related_products": related_products,
         }
 

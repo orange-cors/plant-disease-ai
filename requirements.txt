@@ -13,7 +13,8 @@ numpy>=1.26.0
 httpx>=0.27.0
 pytest>=8.0.0
 
-# Optional Deep Learning Runtimes for Local AI Model Inference (ai_service.py):
-# torch>=2.2.0
-# torchvision>=0.17.0
+# Deep Learning Runtime for Local AI Model Inference (ai_service.py):
+torch>=2.2.0
+torchvision>=0.17.0
+# Optional for Grad-CAM scripts:
 # grad-cam>=1.5.0

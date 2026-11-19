@@ -161,6 +161,11 @@
                         <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
                             Mã bệnh: {{ result.maBenh }}
                         </span>
+                        {% if result.backend %}
+                        <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+                            🤖 {{ result.backend }} · {{ result.inference_time_ms }}ms
+                        </span>
+                        {% endif %}
                     </div>
 
                     <div class="mt-2">
