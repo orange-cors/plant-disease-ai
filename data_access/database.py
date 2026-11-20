@@ -44,7 +44,7 @@ def verify_password(raw_password: str, hashed_password: str) -> bool:
 
 
 def _build_engine():
-    """Build SQLAlchemy engine for SQL Server with automatic fallback to SQLite."""
+    """Build SQLAlchemy engine connected to Microsoft SQL Server."""
     if config.DATABASE_URL_ENV:
         try:
             eng = create_engine(config.DATABASE_URL_ENV, pool_pre_ping=True)
@@ -52,29 +52,25 @@ def _build_engine():
                 conn.execute(text("SELECT 1"))
             return eng, "SQL Server (DATABASE_URL)"
         except Exception as e:
-            if config.DB_MODE == "mssql":
-                raise RuntimeError(f"Không thể kết nối SQL Server qua DATABASE_URL: {e}")
+            raise RuntimeError(f"Không thể kết nối SQL Server qua DATABASE_URL: {e}")
 
-    if config.DB_MODE in ("mssql", "auto"):
-        odbc_str = (
-            f"DRIVER={{{config.MSSQL_DRIVER}}};"
-            f"SERVER={config.MSSQL_SERVER};"
-            f"DATABASE={config.MSSQL_DATABASE};"
-            f"Trusted_Connection=yes;"
+    odbc_str = (
+        f"DRIVER={{{config.MSSQL_DRIVER}}};"
+        f"SERVER={config.MSSQL_SERVER};"
+        f"DATABASE={config.MSSQL_DATABASE};"
+        f"Trusted_Connection=yes;"
+        f"TrustServerCertificate=yes;"
+    )
+    mssql_url = f"mssql+pyodbc:///?odbc_connect={quote_plus(odbc_str)}"
+    try:
+        eng = create_engine(mssql_url, pool_pre_ping=True, connect_args={"timeout": 5})
+        with eng.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return eng, f"SQL Server ({config.MSSQL_SERVER}/{config.MSSQL_DATABASE})"
+    except Exception as e:
+        raise RuntimeError(
+            f"Không thể kết nối Microsoft SQL Server ({config.MSSQL_SERVER}/{config.MSSQL_DATABASE}): {e}"
         )
-        mssql_url = f"mssql+pyodbc:///?odbc_connect={quote_plus(odbc_str)}"
-        try:
-            eng = create_engine(mssql_url, pool_pre_ping=True, connect_args={"timeout": 2})
-            with eng.connect() as conn:
-                conn.execute(text("SELECT 1"))
-            return eng, f"SQL Server ({config.MSSQL_SERVER}/{config.MSSQL_DATABASE})"
-        except Exception as e:
-            if config.DB_MODE == "mssql":
-                raise RuntimeError(f"Không thể kết nối SQL Server: {e}")
-
-    sqlite_url = f"sqlite:///{config.SQLITE_PATH}"
-    eng = create_engine(sqlite_url, connect_args={"check_same_thread": False})
-    return eng, f"SQLite Fallback ({config.SQLITE_PATH.name})"
 
 
 engine, ACTIVE_DB_BACKEND = _build_engine()
